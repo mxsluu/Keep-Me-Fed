@@ -24,3 +24,34 @@ model ToDo {
   owner User @relation(fields: [ownerId], references: [id])
   ownerId Int 
 }
+
+model Restaurant {
+  id Int @id @default(autoincrement())
+  name String
+  location String
+  price_range String
+  website_link String
+  genre String
+  photo String
+}
+
+model Ingredient {
+  id Int @id @default(autoincrement())
+  name String
+  price Int
+  location_name String
+  location String
+  recipes Recipe[]
+}
+
+model Recipe {
+  id Int @id @default(autoincrement())
+  name String
+  instructions String[]
+  cook_time Int
+  price_range String
+  genre String
+  photo String
+  source String
+  ingredients Ingredient[]
+}
