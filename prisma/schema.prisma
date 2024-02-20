@@ -15,6 +15,10 @@ model User {
   email String @unique
   password String 
   toDos ToDo[]
+  busyblocks BusyBlock[]
+  favoriteRestaurants Restaurant[]
+  favoriteRecipes Recipe[]
+  history Eaten[]
 }
 
 model ToDo {
@@ -25,6 +29,15 @@ model ToDo {
   ownerId Int 
 }
 
+model BusyBlock{
+  id Int @id @default(autoincrement())
+  day String
+  startTime String
+  endTime String
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+}
+
 model Restaurant {
   id Int @id @default(autoincrement())
   name String
@@ -33,6 +46,8 @@ model Restaurant {
   website_link String
   genre String
   photo String
+  userID User[]
+  eatenHistory Eaten[]
 }
 
 model Ingredient {
@@ -54,4 +69,19 @@ model Recipe {
   photo String
   source String
   ingredients Ingredient[]
+  userID User[]
+  eatenHistory Eaten[]
+}
+
+model Eaten{
+  id Int @id @default(autoincrement())
+  date String
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  recipe Recipe? @relation(fields: [recipieId], references: [id])
+  recipieId Int?
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
+  restaurantId Int?
+  timeSpentEatinginMin Int?
+  menuItem String?
 }
