@@ -42,8 +42,8 @@ model Restaurant {
   id Int @id @default(autoincrement())
   name String
   location String
-  price_range String
-  website_link String
+  priceRange String
+  websiteLink String
   genre String
   photo String
   userID User[]
@@ -54,7 +54,7 @@ model Ingredient {
   id Int @id @default(autoincrement())
   name String
   price Int
-  location_name String
+  locationName String
   location String
   recipes Recipe[]
 }
@@ -63,8 +63,8 @@ model Recipe {
   id Int @id @default(autoincrement())
   name String
   instructions String[]
-  cook_time Int
-  price_range String
+  cookTime Int
+  priceRange String
   genre String
   photo String
   source String

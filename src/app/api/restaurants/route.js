@@ -5,8 +5,8 @@ import { checkLoggedIn } from "@/lib/auth";
 export async function GET(request) {
   //const loggedInData = await checkLoggedIn();
   //if (loggedInData.loggedIn) {
-    const recipes = await prisma.recipe.findMany({});
-    return NextResponse.json(recipes);
+    const restaurants = await prisma.restaurant.findMany({});
+    return NextResponse.json(restaurants);
   //}
   //return NextResponse.json({error: 'not signed in'}, {status: 403});
 }

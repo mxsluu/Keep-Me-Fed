@@ -28,8 +28,8 @@ async function main() {
             data: {
                 name: recipe.name,
                 instructions: recipe.instructions,
-                cook_time: recipe.cook_time,
-                price_range: recipe.price_range,
+                cookTime: recipe.cookTime,
+                priceRange: recipe.priceRange,
                 genre: recipe.genre,
                 photo: recipe.photo,
                 source: recipe.source,

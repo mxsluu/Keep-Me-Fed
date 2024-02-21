@@ -12,25 +12,40 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+import { recipes } from '../../../prisma/recipes';
+import { restaurants } from '../../../prisma/restaurants';
 
-export default function ToDos() {
+export default function findFoods() {
 
     const [searchInput, setSearchInput] = useState('');
-    const [recipes, setRecipes] = useState([]);
+    const [foods, setFoods] = useState({recipes: [], restaurants: []});
     let result = [];
 
     const handler = async function() {
         const response_recipes = await fetch('/api/recipes');
-        const recipeTime = await response_recipes.json();
-
-        setRecipes(recipeTime);
+        const recipes = await response_recipes.json();
+        const response_restaurants = await fetch('/api/restaurants');
+        const restaurants = await response_restaurants.json();
+        setFoods({restaurants: restaurants, recipes: recipes});
     }
+    const recipeList = foods.recipes?.map((recipe, index) => {
+        return(
+            <li key = {index}>
+            <h><b>{recipe.name}</b></h>
+            <div>{recipe.priceRange}</div>  
+            <br/>
+            </li>
+          );
+    });
 
-
-    const recipeList = recipes?.map((recipe, index) => {
-        return (
-            recipe
-        );
+    const restaurantList = foods.restaurants?.map((restaurant, index) => {
+        return(
+            <li key = {index}>
+            <h><b>{restaurant.name}</b></h>
+            <div>{restaurant.priceRange}</div>
+            <br/>
+            </li>
+          );
     });
 
     useEffect(() => {
@@ -43,12 +58,11 @@ export default function ToDos() {
     };
 
     if (searchInput.length > 0) {
-        result = recipeList.filter((recipe) => 
-            recipe.name == searchInput);
+        result.append(foods.recipes.filter((recipe) => 
+            recipe.name == searchInput));
+        result.append(foods.restaurants.filter((restaurant) => 
+            restaurant.name == searchInput));
     }
-
-    console.log(result);
-    console.log(recipeList);
 
     /*
     const [todos, setTodos] = useState([]);
@@ -133,10 +147,10 @@ export default function ToDos() {
     return <div>
 
         <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={handleChange}/> 
-        {result.map((recipe) => {
+        {result.map((food) => {
         <div>
             <ul>
-                <h2>{recipe.name}</h2>
+                <h2>{food.name}</h2>
             </ul>
         </div>
         /*
@@ -156,5 +170,11 @@ export default function ToDos() {
         */
 
         }) }
+    <div>
+        <hr/>
+        <div>{recipeList}</div>
+        <hr/>
+        <div>{restaurantList}</div>
+    </div>
     </div>
 }

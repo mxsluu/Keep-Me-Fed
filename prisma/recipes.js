@@ -8,8 +8,8 @@ const recipes = [
             "4. Remove them from the heat, and gently fold in the remaining 1 tablespoon of butter.",
             "5. Serve Hot"
         ],
-        cook_time: 15,
-        price_range: '$',
+        cookTime: 15,
+        priceRange: '$',
         genre: 'Breakfast',
         photo: 'Photo here',
         source: 'https://www.foodnetwork.com/recipes/food-network-kitchen/simple-scrambled-eggs-3363098',
@@ -25,8 +25,8 @@ const recipes = [
             "5. Stir rice once rice cooker is finished.",
             "6. Serve hot."
         ],
-        cook_time: 10,
-        price_range: '$',
+        cookTime: 10,
+        priceRange: '$',
         genre: 'Asian',
         photo: 'Photo here',
         source: 'Experience',
@@ -46,8 +46,8 @@ const recipes = [
             "9. Stir rice once rice cooker is finished.",
             "10. Mix rice and eggs in a bowl and enjoy while hot."
         ],
-        cook_time: 10,
-        price_range: '$',
+        cookTime: 10,
+        priceRange: '$',
         genre: 'Asian',
         photo: 'Photo here',
         source: 'Experience',
@@ -61,8 +61,8 @@ const recipes = [
             "3. Reduce the heat to low. Cover and cook for 20 minutes or until the meatballs are heated through, stirring occasionally.",
             "4. Serve the sauce and meatballs over the spaghetti. Sprinkle with the cheese, if desired."
         ],
-        cook_time: 35,
-        price_range: '$$',
+        cookTime: 35,
+        priceRange: '$$',
         genre: 'Italian',
         photo: 'Photo here',
         source: 'https://www.campbells.com/prego/recipes/quick-spaghetti-meatballs/',
