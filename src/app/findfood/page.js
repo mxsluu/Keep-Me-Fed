@@ -64,7 +64,6 @@ export default function findFoods() {
             setFoods(foods.filter((food) => nameSearch(food.name, searchInput)));
         }
         else{
-            console.log("HIT")
             handler();
         }
     }
