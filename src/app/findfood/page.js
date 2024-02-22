@@ -19,7 +19,6 @@ export default function findFoods() {
 
     const [searchInput, setSearchInput] = useState('');
     const [foods, setFoods] = useState([]);
-    const [results, setResults] = useState([]);
     const [recipeIsLoading, setRecipeIsLoading] = useState(true);
     const [restaurantIsLoading, setRestaurantIsLoading] = useState(true);
     const [IsLoading, setIsLoading] = useState(true);
@@ -28,12 +27,11 @@ export default function findFoods() {
     const handler = async function() {
         const response_recipes = await fetch('/api/recipes');
         const recipes = await response_recipes.json();
-        setRecipeIsLoading(false)
+        setRecipeIsLoading(false);
         const response_restaurants = await fetch('/api/restaurants');
         const restaurants = await response_restaurants.json();
-        setRestaurantIsLoading(false)
+        setRestaurantIsLoading(false);
         setFoods(recipes.concat(restaurants));
-        setResults(recipes.concat(restaurants));
     }
     
     useEffect(() => {
@@ -62,20 +60,21 @@ export default function findFoods() {
         return noSpaceAndLowerCase.includes(inputNoSpaceAndLowerCase) || found
     }
     function searchFood() {
-        if (setResults.length && searchInput.length){
-            setResults(foods.filter((food) => nameSearch(food.name, searchInput)));
+        if (foods.length && searchInput.length){
+            setFoods(foods.filter((food) => nameSearch(food.name, searchInput)));
         }
         else{
-            setResults(foods)
+            console.log("HIT")
+            handler();
         }
     }
-    const resultList = (restaurantIsLoading || recipeIsLoading) ? loadingItems: results.map((result, index) => {
+    const foodList = (restaurantIsLoading || recipeIsLoading) ? loadingItems: foods.map((food, index) => {
         return <ListItem key={index} secondaryAction={
-            <IconButton edge="end" onClick={() => doNothing(result.name)} aria-label='Do Nothing'><Favorite/></IconButton>   
+            <IconButton edge="end" onClick={() => doNothing(food.name)} aria-label='Do Nothing'><Favorite/></IconButton>   
         }>  
             <ListItemButton>
-                <ListItemText primary={result.name}/>
-                <ListItemText primary={result.priceRange}/>
+                <ListItemText primary={food.name}/>
+                <ListItemText primary={food.priceRange}/>
             </ListItemButton>
         </ListItem>;
     });    
@@ -87,7 +86,7 @@ export default function findFoods() {
         <div><h2>Meals</h2></div>
         <>
             <List sx={{ width: '100%', maxWidth: 1500 }}>
-                { resultList }
+                { foodList }
                 {!(recipeIsLoading && restaurantIsLoading) && <ListItem key="food">
                 </ListItem>}
             </List>
