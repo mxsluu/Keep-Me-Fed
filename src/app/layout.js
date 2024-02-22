@@ -2,8 +2,8 @@ import { Inter } from 'next/font/google'
 import RootLayout from './RootLayout';
 import AuthProvider from './AuthProvider';
 
-const inter = Inter({ subsets: ['latin'] })
-const COMPANY_NAME = "MyCompany";
+const inter = Inter({ subsets: ['greek'] })
+const COMPANY_NAME = "KeepMeFed";
 
 export const metadata = {
   title: COMPANY_NAME
