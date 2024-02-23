@@ -3,13 +3,19 @@
 import { usePathname } from 'next/navigation'
 import { Box, Button } from '@mui/material';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 export default function NavBar() {
   const pathname = usePathname();
-  const links = [
+  const { data: session, status }  = useSession();
+  var links = [
     { path: '/', name: 'Home' }, 
-    { path: '/todos', name: 'ToDos' }
+    { path: '/findfood', name: 'Find Food' },
   ];
+  if (status == 'authenticated'){
+    links = [...links, { path: '/account', name: 'Account' }]
+  }
+
 
   return (
     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
