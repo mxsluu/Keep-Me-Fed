@@ -1,51 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
-import Signup from './Signup'; // import the Signup component
+import HomePage from './HomePage'; // import the Signup component
 
 export default function Home() {
-  // Define the style for the cards here to avoid repetition
-  const cardStyle = {
-    width: '400px', // Increase the width
-    height: '250px', // Increase the height
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between', // This will space out the content and actions
-    backgroundColor: '#ADD8E6', 
-  };
-
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2rem', padding: '2rem' }}>
-      <Card style={cardStyle}>
-        <CardContent>
-          <Typography variant="h5" component="div">
-            Want a curated experience?
-          </Typography>
-          <Typography variant="body2">
-            Sign up now!
-          </Typography>
-        </CardContent>
-        <CardActions>
-          <Signup /> {/* Use the Signup component directly instead of Link */}
-        </CardActions>
-      </Card>
-
-      <Card style={cardStyle}>
-        <CardContent>
-          <Typography variant="h5" component="div">
-            Just want to search for meals?
-          </Typography>
-          <Typography variant="body2">
-            No problem!
-          </Typography>
-        </CardContent>
-        <CardActions>
-          <Link href="/findfood" passHref>
-            <Button size="small" variant="contained">Find Food</Button>
-          </Link>
-        </CardActions>
-      </Card>
-    </div>
+  return(
+    <HomePage />
   )
 }
 

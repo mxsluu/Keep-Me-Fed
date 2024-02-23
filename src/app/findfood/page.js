@@ -44,7 +44,13 @@ export default function findFoods() {
     }
 
     function searchChanged(event){
-        setSearchInput(event.target.value);
+        if (event.target.value)
+            setSearchInput(event.target.value);
+        else{
+            handler();
+            setSearchInput('')
+        }
+        searchFood()
       }
 
     function nameSearch(name, searchInput){
@@ -60,12 +66,7 @@ export default function findFoods() {
         return noSpaceAndLowerCase.includes(inputNoSpaceAndLowerCase) || found
     }
     function searchFood() {
-        if (foods.length && searchInput.length){
-            setFoods(foods.filter((food) => nameSearch(food.name, searchInput)));
-        }
-        else{
-            handler();
-        }
+        setFoods(foods.filter((food) => nameSearch(food.name, searchInput)));
     }
     const foodList = (restaurantIsLoading || recipeIsLoading) ? loadingItems: foods.map((food, index) => {
         return <ListItem key={index} secondaryAction={
@@ -81,7 +82,6 @@ export default function findFoods() {
     return(
         <div>
         <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
-        <button onClick={searchFood}>Search</button>
         <div><h2>Meals</h2></div>
         <>
             <List sx={{ width: '100%', maxWidth: 1500 }}>
