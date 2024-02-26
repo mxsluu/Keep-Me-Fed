@@ -10,7 +10,12 @@ export async function POST(request) {
     let user;
     try {
       user = await prisma.user.create({
-        data: { email, password: hashedPassword }
+        data: { 
+          email, 
+          password: hashedPassword,
+          budget: 0,
+          location: '' 
+        }
       });
     } catch (e) {
       return NextResponse.json({error: e.message}, {status: 500 })
