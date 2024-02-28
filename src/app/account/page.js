@@ -7,6 +7,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 
 
 const localizer=momentLocalizer(moment);
@@ -87,51 +88,56 @@ useEffect(() => {
       setLocationInput('');
     }
   }
-  return (
-    <>
-      <h1>Account Page</h1>
-      <h2>Budget</h2>
-      <p>
-        Enter a budget below. This will reset each week and adjust after each meal 
-      </p>
-      <div>
-        {/* Display label and input field for entering budget */}
-        <label>Enter Weekly Budget: </label>
-        <input type="text" value={budgetInput} onChange={BudgetInputChanged}/>
-        <br></br>
-        {/* Button to trigger adding budget */}
-        <button onClick={updateBudget}>Enter</button>
-      </div>
-      {/* Display the entered budget on the screen only if the button is clicked */}
-      {<p>Weekly Budget: ${budget}</p>}
-      <div>
-        {/* Display label and input field for entering location */}
-        <label>Enter Location: </label>
-        <input type="text" value={locationInput} onChange={LocationInputChanged}/>
-        <br></br>
-        {/* Button to trigger adding location */}
-        <button onClick={updateLocation}>Enter</button>
-      </div>
-      {/* Display the entered budget on the screen only if the button is clicked */}
-      {location.length && <p>Location: {location}</p> || <p>Location: No Location Entered</p>}
-      <div style={{height:500}}>
-        <h2>Calendar</h2>
-        <Calendar 
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        selectable
-        onSelectSlot={busyBlock}
-        views={['month', 'week', 'day']}
-        defaultView="week"
-        scrollToTime={new Date(1990,1,1,1)}
-        defaultDate={new Date()}
-        />
+  if (status == 'authenticated'){
+    return (
+      <>
+        <h1>Account Page</h1>
+        <h2>Budget</h2>
+        <p>
+          Enter a budget below. This will reset each week and adjust after each meal 
+        </p>
+        <div>
+          {/* Display label and input field for entering budget */}
+          <label>Enter Weekly Budget: </label>
+          <input type="text" value={budgetInput} onChange={BudgetInputChanged}/>
+          <br></br>
+          {/* Button to trigger adding budget */}
+          <button onClick={updateBudget}>Enter</button>
+        </div>
+        {/* Display the entered budget on the screen only if the button is clicked */}
+        {<p>Weekly Budget: ${budget}</p>}
+        <div>
+          {/* Display label and input field for entering location */}
+          <label>Enter Location: </label>
+          <input type="text" value={locationInput} onChange={LocationInputChanged}/>
+          <br></br>
+          {/* Button to trigger adding location */}
+          <button onClick={updateLocation}>Enter</button>
+        </div>
+        {/* Display the entered budget on the screen only if the button is clicked */}
+        {location.length && <p>Location: {location}</p> || <p>Location: No Location Entered</p>}
+        <div style={{height:500}}>
+          <h2>Calendar</h2>
+          <Calendar 
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          selectable
+          onSelectSlot={busyBlock}
+          views={['month', 'week', 'day']}
+          defaultView="week"
+          scrollToTime={new Date(1990,1,1,1)}
+          defaultDate={new Date()}
+          />
 
-      </div>
-      <ul>
-      </ul>
-    </>
-  );
+        </div>
+        <ul>
+        </ul>
+      </>
+    );
+  }
+    else {
+      redirect('/')
+    }
 }
