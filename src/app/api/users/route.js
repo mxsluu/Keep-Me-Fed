@@ -1,6 +1,21 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import bcrypt from 'bcryptjs';
+import { checkLoggedIn } from "@/lib/auth";
+
+
+export async function GET(request) {
+  const loggedInData = await checkLoggedIn();
+  if (loggedInData.loggedIn) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: loggedInData.user?.id
+      }
+    });
+    return NextResponse.json(user);
+  }
+  return NextResponse.json({error: 'not signed in'}, {status: 403});
+}
 
 export async function POST(request) {
   const data = await request.json();
