@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import DeleteForever from '@mui/icons-material/DeleteForever';
@@ -11,82 +11,137 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import { recipes } from '../../../prisma/recipes';
-import { restaurants } from '../../../prisma/restaurants';
-import { Favorite } from '@mui/icons-material';
+import { Favorite, FavoriteBorder } from '@mui/icons-material';
+import { useSearchParams} from 'next/navigation'
+import { create } from 'domain';
+import { useSession } from 'next-auth/react';
+
+
 
 export default function findFoods() {
 
     const [searchInput, setSearchInput] = useState('');
     const [foods, setFoods] = useState([]);
-    const [recipeIsLoading, setRecipeIsLoading] = useState(true);
-    const [restaurantIsLoading, setRestaurantIsLoading] = useState(true);
+    const [favorites, setFavorites] = useState([]);
     const [IsLoading, setIsLoading] = useState(true);
     const loadingItems = <CircularProgress/>;
+    const searchParams = useSearchParams()
+    const { data: session, status }  = useSession();
 
-    const handler = async function() {
-        const response_recipes = await fetch('/api/recipes');
-        const recipes = await response_recipes.json();
-        setRecipeIsLoading(false);
-        const response_restaurants = await fetch('/api/restaurants');
-        const restaurants = await response_restaurants.json();
-        setRestaurantIsLoading(false);
-        setFoods(recipes.concat(restaurants));
+    const initialFetch = async function() {
+        fetchFoods();
+        fetchFavorites();
+        setIsLoading(false);
     }
+
+    const fetchFoods = () => {
+        fetch("/api/foods", { method: "get" }).then((res) => res.ok && res.json()).then(
+            foods => {
+                foods && setFoods(foods);
+        });
+    };
+
+    const fetchFavorites = () => {
+        fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
+            favorites => {
+                favorites && setFavorites(favorites);
+        });
+    };
     
     useEffect(() => {
-        handler();
+        initialFetch();
     }, []);
 
-    function doNothing(name){
-        return 1;
-
+    function favoriteFood(food){
+        fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})}).then((res) => {
+            if(res.ok) {
+                fetchFoods();
+                setFavorites([...favorites, food])
+            }
+        });
     }
+
+    function unfavoriteFood(food){
+        fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})}).then((res) => {
+            if(res.ok) {
+                setFoods([...foods, food])
+                fetchFavorites()
+            }
+        });
+    }
+    const createQueryString = useCallback(
+        (name, value) => {
+          const params = new URLSearchParams(searchParams)
+          params.set(name, value)
+          return params.toString()
+        },
+        [searchParams]
+      )
 
     function searchChanged(event){
-        if (event.target.value)
-            setSearchInput(event.target.value);
-        else{
-            handler();
-            setSearchInput('')
-        }
-        searchFood()
+        setSearchInput(event.target.value);
       }
 
-    function nameSearch(name, searchInput){
-        var found = false;
-        const inputNoSpaceAndLowerCase = (searchInput.replace(/\s+/g, '')).toLowerCase();
-        const splitInputLowerCase = searchInput.toLowerCase().split(' ')
-        const noSpaceAndLowerCase = (name.replace(/\s+/g, '')).toLowerCase();
-        splitInputLowerCase.forEach((word) => {
-            if (noSpaceAndLowerCase.includes(word)){
-                found = true;
-            }
-        })
-        return noSpaceAndLowerCase.includes(inputNoSpaceAndLowerCase) || found
-    }
+
     function searchFood() {
-        setFoods(foods.filter((food) => nameSearch(food.name, searchInput)));
+        const searchString = createQueryString('search', searchInput)
+        const loginString = createQueryString('login', "true")
+        fetch("/api/foods" + '?' + searchString + '&' + loginString, { method: "get" }).then((res) => res.ok && res.json()).then(
+            foods => {
+                foods && setFoods(foods);
+        })
+    };
+
+    function resetSearch(){
+        fetchFoods();
     }
-    const foodList = (restaurantIsLoading || recipeIsLoading) ? loadingItems: foods.map((food, index) => {
-        return <ListItem key={index} secondaryAction={
-            <IconButton edge="end" onClick={() => doNothing(food.name)} aria-label='Do Nothing'><Favorite/></IconButton>   
-        }>  
-            <ListItemButton>
-                <ListItemText primary={food.name}/>
-                <ListItemText primary={food.priceRange}/>
-            </ListItemButton>
-        </ListItem>;
-    });    
+    const foodList = IsLoading ? loadingItems: foods.map((food, index) => {
+        if (status == 'authenticated'){
+            return <ListItem key={index} secondaryAction={
+                <IconButton edge="end" onClick={() => favoriteFood(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>   
+            }>  
+                <ListItemButton>
+                    <ListItemText primary={food.name}/>
+                    <ListItemText primary={food.priceRange}/>
+                </ListItemButton>
+            </ListItem>;
+        }
+        else{
+            return <ListItem>
+                <ListItemButton>
+                    <ListItemText primary={food.name}/>
+                    <ListItemText primary={food.priceRange}/>
+                </ListItemButton>
+            </ListItem>;
+        }
+    });
+    
+    const favoriteList = IsLoading ? loadingItems: favorites.map((food, index) => {
+        if (status == 'authenticated'){
+            return( 
+            <ListItem key={index} secondaryAction={
+                <IconButton edge="end" onClick={() => unfavoriteFood(food)} aria-label='Unfavorite Food'><Favorite/></IconButton>   
+            }>
+                <ListItemButton>
+                    <ListItemText primary={food.name}/>
+                    <ListItemText primary={food.priceRange}/>
+                </ListItemButton>
+            </ListItem>);
+        }
+    });   
 
     return(
         <div>
-        <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
-        <div><h2>Meals</h2></div>
+        <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/>
+        <button onClick={searchFood}>Search</button>
+        <button onClick={resetSearch}>Reset Search</button>
         <>
             <List sx={{ width: '100%', maxWidth: 1500 }}>
+                {status == "authenticated" && <h1>Favorite List</h1>}
+                { favoriteList }
+                <h1>Meals</h1>
                 { foodList }
-                {!(recipeIsLoading && restaurantIsLoading) && <ListItem key="food">
+                {!(IsLoading) && <ListItem key="food">
                 </ListItem>}
             </List>
         </>
