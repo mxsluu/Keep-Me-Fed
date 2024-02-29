@@ -19,6 +19,8 @@ export default function findFoods() {
 
     const [searchInput, setSearchInput] = useState('');
     const [foods, setFoods] = useState([]);
+    const [userLat, setUserLat] = useState('');
+    const [userLng, setUserLng] = useState('');
     const [recipeIsLoading, setRecipeIsLoading] = useState(true);
     const [restaurantIsLoading, setRestaurantIsLoading] = useState(true);
     const [IsLoading, setIsLoading] = useState(true);
@@ -68,28 +70,44 @@ export default function findFoods() {
     function searchFood() {
         setFoods(foods.filter((food) => nameSearch(food.name, searchInput)));
     }
-    const foodList = (restaurantIsLoading || recipeIsLoading) ? loadingItems: foods.map((food, index) => {
-        return <ListItem key={index} secondaryAction={
-            <IconButton edge="end" onClick={() => doNothing(food.name)} aria-label='Do Nothing'><Favorite/></IconButton>   
-        }>  
-            <ListItemButton>
-                <ListItemText primary={food.name}/>
-                <ListItemText primary={food.priceRange}/>
-            </ListItemButton>
-        </ListItem>;
+
+    function calculateDistance(lat1, lon1, lat2, lon2){
+        // func to calc dist between 2 coords
+    }
+
+    function updateLat(event){
+        setUserLat(event.target.value);
+    }
+
+    function updateLng(event){
+        setUserLng(event.target.value);
+    }
+    const foodList = (restaurantIsLoading || recipeIsLoading) ? loadingItems : foods.map((food, index) => {
+        let distance = calculateDistance(userLat, userLng, food.latitude, food.longitude);
+        return (
+            <ListItem key={index} secondaryAction={
+                <IconButton edge="end" onClick={() => { /* your existing onClick function */ }} aria-label='Do Nothing'>
+                    <Favorite />
+                </IconButton>   
+            }>  
+                <ListItemButton>
+                    <ListItemText primary={food.name} />
+                    <ListItemText primary={food.priceRange} />
+                    <ListItemText secondary={`Distance: ${distance} km`} />
+                </ListItemButton>
+            </ListItem>
+        );
     });    
 
-    return(
+    return (
         <div>
-        <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
-        <div><h2>Meals</h2></div>
-        <>
+            <TextField label="Latitude" fullWidth variant="outlined" value={userLat} onChange={updateLat}/> 
+            <TextField label="Longitude" fullWidth variant="outlined" value={userLng} onChange={updateLng}/>
+            <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
+            <div><h2>Meals</h2></div>
             <List sx={{ width: '100%', maxWidth: 1500 }}>
                 { foodList }
-                {!(recipeIsLoading && restaurantIsLoading) && <ListItem key="food">
-                </ListItem>}
             </List>
-        </>
         </div>
     )
 }
