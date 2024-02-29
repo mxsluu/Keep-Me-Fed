@@ -12,14 +12,14 @@ import ListItemText from '@mui/material/ListItemText';
 import { TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Favorite, FavoriteBorder } from '@mui/icons-material';
-import { useSearchParams} from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { create } from 'domain';
 import { useSession } from 'next-auth/react';
 
 
 
 export default function findFoods() {
-
+    const router = useRouter()
     const [searchInput, setSearchInput] = useState('');
     const [foods, setFoods] = useState([]);
     const [favorites, setFavorites] = useState([]);
@@ -34,14 +34,14 @@ export default function findFoods() {
         setIsLoading(false);
     }
 
-    const fetchFoods = () => {
+    const fetchFoods = async function () {
         fetch("/api/foods", { method: "get" }).then((res) => res.ok && res.json()).then(
             foods => {
                 foods && setFoods(foods);
         });
     };
 
-    const fetchFavorites = () => {
+    const fetchFavorites = async function () {
         fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
             favorites => {
                 favorites && setFavorites(favorites);
@@ -85,22 +85,31 @@ export default function findFoods() {
 
     function searchFood() {
         const searchString = createQueryString('search', searchInput)
-        const loginString = createQueryString('login', "true")
-        fetch("/api/foods" + '?' + searchString + '&' + loginString, { method: "get" }).then((res) => res.ok && res.json()).then(
+        fetch("/api/foods" + '?' + searchString, { method: "get" }).then((res) => res.ok && res.json()).then(
             foods => {
                 foods && setFoods(foods);
         })
     };
 
+    function goToFood(food){
+        if (food.type == "recipe") {    
+            router.push(`/recipes/${food.id}`)
+        }
+        else{
+            router.push(`/restaurants/${food.id}`)
+        }
+    }
+
     function resetSearch(){
         fetchFoods();
     }
-    const foodList = IsLoading ? loadingItems: foods.map((food, index) => {
+    const foodList = IsLoading ? loadingItems: foods.map((food) => {
         if (status == 'authenticated'){
-            return <ListItem key={index} secondaryAction={
+            return <ListItem
+            secondaryAction={
                 <IconButton edge="end" onClick={() => favoriteFood(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>   
             }>  
-                <ListItemButton>
+                <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
                 </ListItemButton>
@@ -108,7 +117,7 @@ export default function findFoods() {
         }
         else{
             return <ListItem>
-                <ListItemButton>
+                <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
                 </ListItemButton>
@@ -116,13 +125,14 @@ export default function findFoods() {
         }
     });
     
-    const favoriteList = IsLoading ? loadingItems: favorites.map((food, index) => {
+    const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
         if (status == 'authenticated'){
             return( 
-            <ListItem key={index} secondaryAction={
+            <ListItem
+            secondaryAction={
                 <IconButton edge="end" onClick={() => unfavoriteFood(food)} aria-label='Unfavorite Food'><Favorite/></IconButton>   
             }>
-                <ListItemButton>
+                <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
                 </ListItemButton>

@@ -7,12 +7,13 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 
 const localizer=momentLocalizer(moment);
 
 export default function Home() {
+  const router = useRouter()
   const { data: session, status }  = useSession();
   // State to store the budget value
   const [budget, setBudget] = useState('');
@@ -138,6 +139,6 @@ useEffect(() => {
     );
   }
     else {
-      redirect('/')
+      router.push('/')
     }
 }

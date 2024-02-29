@@ -5,8 +5,14 @@ import { checkLoggedIn } from "@/lib/auth";
 export async function GET(request) {
   //const loggedInData = await checkLoggedIn();
   //if (loggedInData.loggedIn) {
-    const restaurants = await prisma.restaurant.findMany({});
-    return NextResponse.json(restaurants);
+    const searchParams = request.nextUrl.searchParams
+    const id = parseInt(searchParams.get('id'));
+    const restaurant = await prisma.restaurant.findUnique({
+      where: {
+        id: id
+      }
+    });
+    return NextResponse.json(restaurant);
   //}
   //return NextResponse.json({error: 'not signed in'}, {status: 403});
 }

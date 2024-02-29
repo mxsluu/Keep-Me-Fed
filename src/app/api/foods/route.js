@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { checkLoggedIn } from "@/lib/auth";
-import { log } from "util";
 
 export async function GET(request) {
   const loggedInData = await checkLoggedIn();

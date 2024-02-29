@@ -11,7 +11,7 @@ const recipes = [
         cookTime: 15,
         priceRange: '$',
         genre: 'Breakfast',
-        photo: 'Photo here',
+        photo: '/recipe/scrambledeggs.png',
         source: 'https://www.foodnetwork.com/recipes/food-network-kitchen/simple-scrambled-eggs-3363098',
         ingredients_list: ["Eggs", "Butter", "Black Pepper", "Salt"]
     },
@@ -28,7 +28,7 @@ const recipes = [
         cookTime: 10,
         priceRange: '$',
         genre: 'Asian',
-        photo: 'Photo here',
+        photo: '/recipe/rice.png',
         source: 'Experience',
         ingredients_list: ["White Rice"]
     },
@@ -49,7 +49,7 @@ const recipes = [
         cookTime: 10,
         priceRange: '$',
         genre: 'Asian',
-        photo: 'Photo here',
+        photo: '/recipe/eggswithrice.png',
         source: 'Experience',
         ingredients_list: ["Eggs", "Butter", "Black Pepper", "Salt", "White Rice"]
     },
@@ -64,7 +64,7 @@ const recipes = [
         cookTime: 35,
         priceRange: '$$',
         genre: 'Italian',
-        photo: 'Photo here',
+        photo: '/recipe/spaghetti&meatballs.png',
         source: 'https://www.campbells.com/prego/recipes/quick-spaghetti-meatballs/',
         ingredients_list: ["Spaghetti", "Prego® Traditional Italian Sauce", "Frozen fully-cooked beef meatballs", "Grated parmesan cheese"]
     }
