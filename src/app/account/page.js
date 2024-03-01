@@ -6,13 +6,9 @@ import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Link from 'next/link';
 import Image from 'next/image';
-<<<<<<< HEAD
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
-=======
-import CustomToolbar from './toolbar';
->>>>>>> origin/schedule
 
 const localizer=momentLocalizer(moment);
 
@@ -81,7 +77,6 @@ useEffect(() => {
   });
   };
 
-<<<<<<< HEAD
     // Event handler for adding location
     const addLocation = () => {
       fetch(`/api/users/${session.user.id}}`, {method: 'put', body: JSON.stringify({budgetInput: budget, locationInput})}).then((res) => {
@@ -159,42 +154,4 @@ useEffect(() => {
     else {
       router.push('/')
     }
-=======
-  return (
-    <>
-      <h1>Account Page</h1>
-      <h2>Budget</h2>
-      <p>
-        Enter a budget below. This will reset each week and adjust after each meal 
-      </p>
-      <div>
-        {/* Display label and input field for entering budget */}
-        <label>Budget: </label>
-        <input type="text" value={budget} onChange={BudgetChanged}/>
-        <br></br>
-        {/* Button to trigger adding budget */}
-        <button onClick={addBudget}>Enter</button>
-      </div>
-      {/* Display the entered budget on the screen only if the button is clicked */}
-      {isButtonClicked && <p>Budget entered: ${budget}</p>}
-      <div style={{height:1000}}>
-        <h2>Calendar</h2>
-        <Calendar 
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        selectable
-        onSelectSlot={busyBlock}
-        views={['month', 'week', 'day']}
-        defaultView="week"
-        scrollToTime={new Date(1990,1,1,1)}
-        defaultDate={new Date()}
-      
-        />
-
-      </div>
-    </>
-  );
->>>>>>> origin/schedule
 }
