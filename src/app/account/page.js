@@ -6,7 +6,7 @@ import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Link from 'next/link';
 import Image from 'next/image';
-
+import CustomToolbar from './toolbar';
 
 const localizer=momentLocalizer(moment);
 
@@ -23,10 +23,23 @@ export default function Home() {
     setBudget(event.target.value);
   };
   //Event handler for creating busy blocks onto Calendar
-  const busyBlock=({start, end})=>{
+  const busyBlock= async ({start, end})=>{
     const title='Busy Block';
     const newEvent={start, end, title};
-    setEvents([...events, newEvent]);
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
+
+    try{
+      const response=await fetch('/api/schedule', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({startTime: start, endTime: end}),
+      });
+      if(!response.ok){
+        throw new Error('Failed to create busy block');
+      } 
+    }catch (error){
+        console.error('Error creating busy block: ',error);
+      }
   };
  
   // Event handler for adding budget
@@ -52,7 +65,7 @@ export default function Home() {
       </div>
       {/* Display the entered budget on the screen only if the button is clicked */}
       {isButtonClicked && <p>Budget entered: ${budget}</p>}
-      <div style={{height:500}}>
+      <div style={{height:1000}}>
         <h2>Calendar</h2>
         <Calendar 
         localizer={localizer}
@@ -65,11 +78,10 @@ export default function Home() {
         defaultView="week"
         scrollToTime={new Date(1990,1,1,1)}
         defaultDate={new Date()}
+      
         />
 
       </div>
-      <ul>
-      </ul>
     </>
   );
 }
