@@ -32,14 +32,24 @@ export default function findFoods() {
     const [customLat, setCustomLat] = useState('');
     const [customLng, setCustomLng] = useState('');
     const [error, setError] = useState(null);
+    const [user, setUser] = useState([])
 
 
     const initialFetch = async function() {
         fetchFoods();
         fetchFavorites();
+        fetchLocation();
+        fetchUser()
         setIsLoading(false);
     }
-      
+    
+    const fetchUser =  async function () {
+        fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
+            user => {
+                user && setUser(user);
+        });
+    };
+
     const fetchFoods = async function () {
         fetch("/api/foods", { method: "get" }).then((res) => res.ok && res.json()).then(
             foods => {
@@ -56,7 +66,6 @@ export default function findFoods() {
     
     useEffect(() => {
         initialFetch();
-        fetchLocation();
     }, []);
 
     const fetchLocation = async function() {
@@ -104,7 +113,6 @@ export default function findFoods() {
 
     function searchChanged(event){
         setSearchInput(event.target.value);
-        searchFood();
       }
     
 
@@ -150,6 +158,15 @@ export default function findFoods() {
             fetchLocation();
         }
     };
+
+    function useAccountLocation(){
+        if (user.location != ''){
+            const locationSplit = user.location.split(",")
+            setCustomLat(locationSplit[0]);
+            setCustomLng(locationSplit[1]);
+        }
+    }
+
     function deg2rad(deg) {
         return deg * (Math.PI/180);
       }
@@ -221,22 +238,21 @@ export default function findFoods() {
         }
     });   
 
-
    // 35.29563278166948, -120.67837015960859
    // 35.26289912945568, -120.6774243085059 : MCdonalds
    // 35.293915501012656, -120.6722660632114 : Panda Express
 
     return (
         <div>
-            <p>
-          Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}
-        </p>
+        <p>
+        Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>
         <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
         <button onClick={searchFood}>Search</button>
         <button onClick={resetSearch}>Reset Search</button>
         <TextField label="Latitude" fullWidth variant="outlined" value={customLat} onChange={updateCustomLat}/>
         <TextField label="Longitude" fullWidth variant="outlined" value={customLng} onChange={updateCustomLng}/>
-        <button onClick={updateLocation}>Update Location</button> 
+        <button onClick={updateLocation}>Use Location</button>
+        {status == "authenticated" && <button onClick={useAccountLocation}>Get Account Location</button>}
             <List sx={{ width: '100%', maxWidth: 1500 }}>
                 {status == "authenticated" && <h1>Favorite List</h1>}
                 { favoriteList }

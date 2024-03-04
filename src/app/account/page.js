@@ -29,7 +29,19 @@ export default function Home() {
   const [locallongitude, setLocalLongitude] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchLocation = async function() {
+
+  useEffect(() => {
+    fetchLocation();
+    fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
+        user => {
+            user && setUser(user);
+            setBudget(user.budget)
+            setLocation(user.location)
+            }
+    );
+  }, []);
+
+  const fetchLocation = () => {
     const successHandler = (position) => {
         setLocalLatitude(position.coords.latitude);
         setLocalLongitude(position.coords.longitude);
@@ -45,24 +57,7 @@ export default function Home() {
         navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
       }
   }
-
-  useEffect(() => {
-    fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
-        user => {
-            user && setUser(user);
-            setBudget(user.budget)
-            if (user.location == null){
-              fetchLocation();
-              addLocation()
-            }
-            else{
-              setLocation(user.location)
-            }
-        }
-    );
-  }, []);
-
-
+  
   // Event handler for budget input change
   const BudgetInputChanged = (event) => {
     setBudgetInput(event.target.value);
@@ -105,8 +100,7 @@ export default function Home() {
 
     // Event handler for adding location
     const addLocation = () => {
-      const localLongitudeAndLatitude = locallatitude.toString() + ',' + locallongitude.toString()
-      fetch(`/api/users/${session.user.id}}`, {method: 'put', body: JSON.stringify({budgetInput: budget, localLongitudeAndLatitude})}).then((res) => {
+      fetch(`/api/users/${session.user.id}}`, {method: 'put', body: JSON.stringify({budgetInput: budget, locationInput})}).then((res) => {
         if(res.ok) {
           // Update isButtonClicked to true when the button is clicked
           setIsButtonClicked(true);
@@ -132,6 +126,12 @@ export default function Home() {
       setLocationInput('');
     }
   }
+
+  function useCurrentLocation() {
+    fetchLocation();
+    setLocationInput(locallatitude.toString() + ',' + locallongitude.toString())
+  }
+
     return (
       <>
         <h1>Account Page</h1>
@@ -155,7 +155,8 @@ export default function Home() {
           <input type="text" value={locationInput} onChange={LocationInputChanged}/>
           <br></br>
           {/* Button to trigger adding location */}
-          <button onClick={updateLocation}>Enter</button>
+          <button onClick={updateLocation}>Update Location</button>
+          <button onClick={useCurrentLocation}>Get Current Location</button>
         </div>
         {/* Display the entered budget on the screen only if the button is clicked */}
         {location.length && <p>Location: {location}</p> || <p>Location: No Location Entered</p>}
