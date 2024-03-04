@@ -128,9 +128,31 @@ export default function findFoods() {
         fetchFoods();
     }
 
+    function deg2rad(deg) {
+        return deg * (Math.PI/180);
+      }
+      
+      function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
+        const earthRadius = 3958.8; // Radius of the Earth in miles
+        const dLat = deg2rad(lat2 - lat1);
+        const dLon = deg2rad(lon2 - lon1);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = earthRadius * c; // Distance in miles
+        return distance;
+      }
+
     const foodList = IsLoading ? loadingItems: foods.map((food) => {
+        if (food.type == "restaurant"){
+            var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, 35.26289912945568, -120.6774243085059);
+        }
+        else{
+            var distance = null;
+        }
         if (status == 'authenticated'){
-            const distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, 35.26289912945568, -120.6774243085059);
             return <ListItem
             secondaryAction={
                 <IconButton edge="end" onClick={() => favoriteFood(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>   
@@ -154,7 +176,12 @@ export default function findFoods() {
     });
     
     const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
-        const distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, 35.26289912945568, -120.6774243085059);
+        if (food.type == "restaurant"){
+            var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, 35.26289912945568, -120.6774243085059);
+        }
+        else{
+            var distance = null;
+        }
         if (status == 'authenticated'){
             return( 
             <ListItem
