@@ -9,7 +9,6 @@ import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
-
 const localizer=momentLocalizer(moment);
 
 export default function Home() {
@@ -26,16 +25,43 @@ export default function Home() {
   const [user, setUser] = useState([])
   const [location, setLocation] = useState('');
   const [locationInput, setLocationInput] = useState('')
+  const [locallatitude, setLocalLatitude] = useState(null);
+  const [locallongitude, setLocalLongitude] = useState(null);
+  const [error, setError] = useState(null);
 
-useEffect(() => {
-  fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
-      user => {
-          user && setUser(user);
-          setBudget(user.budget)
-          setLocation(user.location)
+  const fetchLocation = async function() {
+    const successHandler = (position) => {
+        setLocalLatitude(position.coords.latitude);
+        setLocalLongitude(position.coords.longitude);
+      };
+
+      const errorHandler = (error) => {
+        setError(error.message);
+      };
+
+      if (!navigator.geolocation) {
+        setError('Geolocation is not supported by your browser');
+      } else {
+        navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
       }
-  );
-}, []);
+  }
+
+  useEffect(() => {
+    fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
+        user => {
+            user && setUser(user);
+            setBudget(user.budget)
+            if (user.location == null){
+              fetchLocation();
+              addLocation()
+            }
+            else{
+              setLocation(user.location)
+            }
+        }
+    );
+  }, []);
+
 
   // Event handler for budget input change
   const BudgetInputChanged = (event) => {
@@ -79,7 +105,8 @@ useEffect(() => {
 
     // Event handler for adding location
     const addLocation = () => {
-      fetch(`/api/users/${session.user.id}}`, {method: 'put', body: JSON.stringify({budgetInput: budget, locationInput})}).then((res) => {
+      const localLongitudeAndLatitude = locallatitude.toString() + ',' + locallongitude.toString()
+      fetch(`/api/users/${session.user.id}}`, {method: 'put', body: JSON.stringify({budgetInput: budget, localLongitudeAndLatitude})}).then((res) => {
         if(res.ok) {
           // Update isButtonClicked to true when the button is clicked
           setIsButtonClicked(true);
@@ -97,12 +124,14 @@ useEffect(() => {
 
   function updateLocation() {
     if (locationInput){
+      const locationInputSplit = locationInput.split(",")  
       setLocation(locationInput);
+      setLocalLatitude(locationInputSplit[0])
+      setLocalLongitude(locationInputSplit[1])
       addLocation();
       setLocationInput('');
     }
   }
-  if (status == 'authenticated'){
     return (
       <>
         <h1>Account Page</h1>
@@ -150,8 +179,4 @@ useEffect(() => {
         </ul>
       </>
     );
-  }
-    else {
-      router.push('/')
-    }
 }

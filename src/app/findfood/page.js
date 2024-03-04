@@ -29,6 +29,8 @@ export default function findFoods() {
     const { data: session, status }  = useSession();
     const [locallatitude, setLocalLatitude] = useState(null);
     const [locallongitude, setLocalLongitude] = useState(null);
+    const [customLat, setCustomLat] = useState('');
+    const [customLng, setCustomLng] = useState('');
     const [error, setError] = useState(null);
 
 
@@ -54,22 +56,25 @@ export default function findFoods() {
     
     useEffect(() => {
         initialFetch();
-        const successHandler = (position) => {
-          setLocalLatitude(position.coords.latitude);
-          setLocalLongitude(position.coords.longitude);
-        };
-    
-        const errorHandler = (error) => {
-          setError(error.message);
-        };
-    
-        if (!navigator.geolocation) {
-          setError('Geolocation is not supported by your browser');
-        } else {
-          navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
-        }
+        fetchLocation();
     }, []);
 
+    const fetchLocation = async function() {
+        const successHandler = (position) => {
+            setLocalLatitude(position.coords.latitude);
+            setLocalLongitude(position.coords.longitude);
+          };
+      
+          const errorHandler = (error) => {
+            setError(error.message);
+          };
+      
+          if (!navigator.geolocation) {
+            setError('Geolocation is not supported by your browser');
+          } else {
+            navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
+          }
+    }
     function favoriteFood(food){
         fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})}).then((res) => {
             if(res.ok) {
@@ -128,6 +133,23 @@ export default function findFoods() {
         fetchFoods();
     }
 
+    function updateCustomLat(event){
+        setCustomLat(event.target.value);
+    }
+
+    function updateCustomLng(event){
+        setCustomLng(event.target.value);
+    }
+
+    function updateLocation(){
+        if (customLat && customLng){
+            setLocalLatitude(customLat);
+            setLocalLongitude(customLng);
+        }
+        else{
+            fetchLocation();
+        }
+    };
     function deg2rad(deg) {
         return deg * (Math.PI/180);
       }
@@ -147,7 +169,8 @@ export default function findFoods() {
 
     const foodList = IsLoading ? loadingItems: foods.map((food) => {
         if (food.type == "restaurant"){
-            var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, 35.26289912945568, -120.6774243085059);
+            const restaurantLongitudeAndLatitude = food.location.split(',')
+            var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
         }
         else{
             var distance = null;
@@ -177,7 +200,8 @@ export default function findFoods() {
     
     const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
         if (food.type == "restaurant"){
-            var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, 35.26289912945568, -120.6774243085059);
+            const restaurantLongitudeAndLatitude = food.location.split(',')
+            var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
         }
         else{
             var distance = null;
@@ -202,15 +226,17 @@ export default function findFoods() {
    // 35.26289912945568, -120.6774243085059 : MCdonalds
    // 35.293915501012656, -120.6722660632114 : Panda Express
 
-    return(
+    return (
         <div>
             <p>
-          Latitude: {locallatitude}, Longitude: {locallongitude}
+          Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}
         </p>
         <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
         <button onClick={searchFood}>Search</button>
         <button onClick={resetSearch}>Reset Search</button>
-        <>
+        <TextField label="Latitude" fullWidth variant="outlined" value={customLat} onChange={updateCustomLat}/>
+        <TextField label="Longitude" fullWidth variant="outlined" value={customLng} onChange={updateCustomLng}/>
+        <button onClick={updateLocation}>Update Location</button> 
             <List sx={{ width: '100%', maxWidth: 1500 }}>
                 {status == "authenticated" && <h1>Favorite List</h1>}
                 { favoriteList }
@@ -219,7 +245,6 @@ export default function findFoods() {
                 {!(IsLoading) && <ListItem key="food">
                 </ListItem>}
             </List>
-        </>
         </div>
     )
 }

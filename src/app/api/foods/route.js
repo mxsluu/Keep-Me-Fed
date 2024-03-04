@@ -6,7 +6,6 @@ export async function GET(request) {
   const loggedInData = await checkLoggedIn();
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search');
-    const login = searchParams.get('login');
     if (loggedInData.loggedIn){
       if (search != null && search.length){
         search.replace("%20")
