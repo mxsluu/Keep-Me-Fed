@@ -27,13 +27,17 @@ export default function findFoods() {
     const loadingItems = <CircularProgress/>;
     const searchParams = useSearchParams()
     const { data: session, status }  = useSession();
+    const [locallatitude, setLocalLatitude] = useState(null);
+    const [locallongitude, setLocalLongitude] = useState(null);
+    const [error, setError] = useState(null);
+
 
     const initialFetch = async function() {
         fetchFoods();
         fetchFavorites();
         setIsLoading(false);
     }
-
+      
     const fetchFoods = async function () {
         fetch("/api/foods", { method: "get" }).then((res) => res.ok && res.json()).then(
             foods => {
@@ -50,6 +54,20 @@ export default function findFoods() {
     
     useEffect(() => {
         initialFetch();
+        const successHandler = (position) => {
+          setLocalLatitude(position.coords.latitude);
+          setLocalLongitude(position.coords.longitude);
+        };
+    
+        const errorHandler = (error) => {
+          setError(error.message);
+        };
+    
+        if (!navigator.geolocation) {
+          setError('Geolocation is not supported by your browser');
+        } else {
+          navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
+        }
     }, []);
 
     function favoriteFood(food){
@@ -69,6 +87,7 @@ export default function findFoods() {
             }
         });
     }
+
     const createQueryString = useCallback(
         (name, value) => {
           const params = new URLSearchParams(searchParams)
@@ -80,8 +99,9 @@ export default function findFoods() {
 
     function searchChanged(event){
         setSearchInput(event.target.value);
+        searchFood();
       }
-
+    
 
     function searchFood() {
         const searchString = createQueryString('search', searchInput)
@@ -95,6 +115,10 @@ export default function findFoods() {
         if (food.type == "recipe") {    
             router.push(`/recipes/${food.id}`)
         }
+        else if (foods.length == 0)
+        {
+            setFoods(globalFoods);
+        }
         else{
             router.push(`/restaurants/${food.id}`)
         }
@@ -103,8 +127,10 @@ export default function findFoods() {
     function resetSearch(){
         fetchFoods();
     }
+
     const foodList = IsLoading ? loadingItems: foods.map((food) => {
         if (status == 'authenticated'){
+            const distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, 35.26289912945568, -120.6774243085059);
             return <ListItem
             secondaryAction={
                 <IconButton edge="end" onClick={() => favoriteFood(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>   
@@ -112,6 +138,7 @@ export default function findFoods() {
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
+                    <ListItemText primary={distance}/>
                 </ListItemButton>
             </ListItem>;
         }
@@ -120,12 +147,14 @@ export default function findFoods() {
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
+                    <ListItemText primary={distance}/>
                 </ListItemButton>
             </ListItem>;
         }
     });
     
     const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
+        const distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, 35.26289912945568, -120.6774243085059);
         if (status == 'authenticated'){
             return( 
             <ListItem
@@ -135,14 +164,23 @@ export default function findFoods() {
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
+                    <ListItemText primary={distance}/>
                 </ListItemButton>
             </ListItem>);
         }
     });   
 
+
+   // 35.29563278166948, -120.67837015960859
+   // 35.26289912945568, -120.6774243085059 : MCdonalds
+   // 35.293915501012656, -120.6722660632114 : Panda Express
+
     return(
         <div>
-        <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/>
+            <p>
+          Latitude: {locallatitude}, Longitude: {locallongitude}
+        </p>
+        <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
         <button onClick={searchFood}>Search</button>
         <button onClick={resetSearch}>Reset Search</button>
         <>
