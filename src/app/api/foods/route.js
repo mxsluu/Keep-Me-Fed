@@ -6,6 +6,8 @@ export async function GET(request) {
   const loggedInData = await checkLoggedIn();
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search');
+    //const sortAttribute = searchParams.get('searchAttribute')
+    //const sortOrder = searchParams.get('sortOrder')
     if (loggedInData.loggedIn){
       if (search != null && search.length){
         search.replace("%20")
@@ -47,7 +49,7 @@ export async function GET(request) {
             ]
           }
         });
-        return NextResponse.json([...recipes.map(r => ({...r, type: 'recipe'})), ...restaurants.map(r => ({...r, type: 'restaurant'}))]);
+        return NextResponse.json([...recipes.map(r => ({...r, type: 'recipe', distance: null})), ...restaurants.map(r => ({...r, type: 'restaurant', cookTime: null, distance: null}))]);
       }
       else{
         const recipes = await prisma.recipe.findMany({
@@ -68,7 +70,7 @@ export async function GET(request) {
             }
           }
       });
-        return NextResponse.json([...recipes.map(r => ({...r, type: 'recipe'})), ...restaurants.map(r => ({...r, type: 'restaurant'}))]);
+        return NextResponse.json([...recipes.map(r => ({...r, type: 'recipe', distance: null})), ...restaurants.map(r => ({...r, type: 'restaurant', cookTime: null, distance: null}))]);
       }
     }
     else {
@@ -90,12 +92,12 @@ export async function GET(request) {
                 },
               },
             });
-        return NextResponse.json([...recipes.map(r => ({...r, type: 'recipe'})), ...restaurants.map(r => ({...r, type: 'restaurant'}))]);
+        return NextResponse.json([...recipes.map(r => ({...r, type: 'recipe', distance: null})), ...restaurants.map(r => ({...r, type: 'restaurant', cookTime: null, distance: null}))]);
       }
       else{
         const recipes = await prisma.recipe.findMany({});
         const restaurants = await prisma.restaurant.findMany({});
-        return NextResponse.json([...recipes.map(r => ({...r, type: 'recipe'})), ...restaurants.map(r => ({...r, type: 'restaurant'}))]);
+        return NextResponse.json([...recipes.map(r => ({...r, type: 'recipe', distance: null})), ...restaurants.map(r => ({...r, type: 'restaurant', cookTime: null, distance: null}))]);
       }
     }
   }

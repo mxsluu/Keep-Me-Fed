@@ -124,13 +124,39 @@ export default function findFoods() {
         })
     };
 
+    function sortPriceAsc() {
+        foods.sort((foodA, foodB) => foodA.priceRange.length - foodB.priceRange.length)
+        setFoods([...foods])
+    };
+
+    function sortPriceDesc() {
+        foods.sort((foodA, foodB) => foodB.priceRange.length - foodA.priceRange.length)
+        setFoods([...foods])
+    };
+
+    function sortTimeAsc() {
+        foods.sort((foodA, foodB) => foodA.cookTime - foodB.cookTime)
+        setFoods([...foods])
+    };
+
+    function sortTimeDesc() {
+        foods.sort((foodA, foodB) => foodB.cookTime - foodA.cookTime)
+        setFoods([...foods])
+    };
+
+    function sortDistanceAsc() {
+        foods.sort((foodA, foodB) => foodA.distance - foodB.distance)
+        setFoods([...foods])
+    };
+
+    function sortDistanceDesc() {
+        foods.sort((foodA, foodB) => foodB.distance - foodA.distance)
+        setFoods([...foods])
+    };
+
     function goToFood(food){
         if (food.type == "recipe") {    
             router.push(`/recipes/${food.id}`)
-        }
-        else if (foods.length == 0)
-        {
-            setFoods(globalFoods);
         }
         else{
             router.push(`/restaurants/${food.id}`)
@@ -188,9 +214,14 @@ export default function findFoods() {
         if (food.type == "restaurant"){
             const restaurantLongitudeAndLatitude = food.location.split(',')
             var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
+            var time = (distance / 18.6) * 60
+            food.cookTime = time
+            food.distance = distance
         }
         else{
-            var distance = null;
+            var distance = 0
+            var time = food.cookTime
+            food.distance = 0
         }
         if (status == 'authenticated'){
             return <ListItem
@@ -201,6 +232,7 @@ export default function findFoods() {
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
                     <ListItemText primary={distance}/>
+                    <ListItemText primary={Number(30 + time).toFixed(2)}/>
                 </ListItemButton>
             </ListItem>;
         }
@@ -210,6 +242,7 @@ export default function findFoods() {
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
                     <ListItemText primary={distance}/>
+                    <ListItemText primary={Number(30 + time).toFixed(2)}/>
                 </ListItemButton>
             </ListItem>;
         }
@@ -219,9 +252,14 @@ export default function findFoods() {
         if (food.type == "restaurant"){
             const restaurantLongitudeAndLatitude = food.location.split(',')
             var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
+            var time = (distance / 18.6) * 60
+            food.cookTime = time
+            food.distance = distance
         }
         else{
-            var distance = null;
+            var distance = 0
+            var time = food.cookTime
+            food.distance = 0
         }
         if (status == 'authenticated'){
             return( 
@@ -233,6 +271,7 @@ export default function findFoods() {
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
                     <ListItemText primary={distance}/>
+                    <ListItemText primary={Number(30 + time).toFixed(2)}/>
                 </ListItemButton>
             </ListItem>);
         }
@@ -249,6 +288,12 @@ export default function findFoods() {
         <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
         <button onClick={searchFood}>Search</button>
         <button onClick={resetSearch}>Reset Search</button>
+        <button onClick={sortPriceAsc}>Sort by Price Ascending</button>
+        <button onClick={sortPriceDesc}>Sort by Price Descending</button>
+        <button onClick={sortTimeAsc}>Sort by Time Ascending</button>
+        <button onClick={sortTimeDesc}>Sort by Time Descending</button>
+        <button onClick={sortDistanceAsc}>Sort by Distance Ascending</button>
+        <button onClick={sortDistanceDesc}>Sort by Distance Descending</button>
         <TextField label="Latitude" fullWidth variant="outlined" value={customLat} onChange={updateCustomLat}/>
         <TextField label="Longitude" fullWidth variant="outlined" value={customLng} onChange={updateCustomLng}/>
         <button onClick={updateLocation}>Use Location</button>
