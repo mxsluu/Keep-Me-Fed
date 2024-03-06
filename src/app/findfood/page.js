@@ -13,8 +13,11 @@ import { TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Favorite, FavoriteBorder } from '@mui/icons-material';
 import { useSearchParams, useRouter } from 'next/navigation'
+import { Drawer,   Button ,Box} from '@mui/material';
 import { create } from 'domain';
 import { useSession } from 'next-auth/react';
+
+import './styles.css';
 
 
 
@@ -33,6 +36,8 @@ export default function findFoods() {
     const [customLng, setCustomLng] = useState('');
     const [error, setError] = useState(null);
     const [user, setUser] = useState([])
+    const [showFilters, setShowFilters] = useState(false);
+    const [filterValue, setFilterValue] = useState(''); 
 
 
     const initialFetch = async function() {
@@ -193,7 +198,11 @@ export default function findFoods() {
             var distance = null;
         }
         if (status == 'authenticated'){
-            return <ListItem
+            
+            return (
+                <Box key={food.id} className="food-item">
+                    <img src={food.photo} alt={food.name} style={{ width: '50px', height: '50px', marginRight: '10px' }}/>
+            <ListItem
             secondaryAction={
                 <IconButton edge="end" onClick={() => favoriteFood(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>   
             }>  
@@ -202,18 +211,26 @@ export default function findFoods() {
                     <ListItemText primary={food.priceRange}/>
                     <ListItemText primary={distance}/>
                 </ListItemButton>
-            </ListItem>;
+            </ListItem>
+            </Box>
+            );
         }
         else{
-            return <ListItem>
+            return (
+                <Box key={food.id} className="food-item">
+                    <img src={food.photo} alt={food.name} style={{ width: '50px', height: '50px', marginRight: '10px' }}/>
+                <ListItem>
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
                     <ListItemText primary={food.priceRange}/>
                     <ListItemText primary={distance}/>
                 </ListItemButton>
             </ListItem>;
+            </Box>
+            );
         }
     });
+  
     
     const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
         if (food.type == "restaurant"){
@@ -243,17 +260,35 @@ export default function findFoods() {
    // 35.293915501012656, -120.6722660632114 : Panda Express
 
     return (
-        <div>
+        <div className="food">
+        <Button onClick={() => setShowFilters(!showFilters)}  style={{ color: '#7F8E76' }}>Show Filters</Button>
+            <Drawer anchor="left" variant="temporary" open={showFilters} onClose={() => setShowFilters(false)}>
+                <List>
+                    <ListItem>
+                        <TextField
+                            label="Filter"
+                            variant="outlined"
+                            value={filterValue}
+                            onChange={(e) => setFilterValue(e.target.value)}
+                        />
+                    </ListItem>
+                    <ListItem>
+                        <Button variant="contained" onClick={searchFood}>Apply Filters</Button>
+                    </ListItem>
+                </List>
+            </Drawer>
+        <Button onClick={resetSearch} style={{ color: '#7F8E76' }}>Reset Search</Button>
         <p>
         Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>
-        <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
-        <button onClick={searchFood}>Search</button>
-        <button onClick={resetSearch}>Reset Search</button>
+        <div className="search-bar-container">
+        <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged} className="search-bar"/> 
+        <button onClick={searchFood} >SEARCH</button>
+        </div>
         <TextField label="Latitude" fullWidth variant="outlined" value={customLat} onChange={updateCustomLat}/>
         <TextField label="Longitude" fullWidth variant="outlined" value={customLng} onChange={updateCustomLng}/>
         <button onClick={updateLocation}>Use Location</button>
         {status == "authenticated" && <button onClick={useAccountLocation}>Get Account Location</button>}
-            <List sx={{ width: '100%', maxWidth: 1500 }}>
+            <List sx={{ width: '100%', maxWidth: 2000 }}>
                 {status == "authenticated" && <h1>Favorite List</h1>}
                 { favoriteList }
                 <h1>Meals</h1>

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 import Signup from './Signup'; // import the Signup component
 import { useSession } from 'next-auth/react';
+import  background from '/public/img/pexels-ella-olsson-1640777.png';
 
 export default function Home() {
   // Define the style for the cards here to avoid repetition
@@ -15,10 +16,20 @@ export default function Home() {
     justifyContent: 'space-between', // This will space out the content and actions
     backgroundColor: '#ADD8E6', 
   };
+  const containerStyle = {
+    minHeight: '100vh', // Set minimum height to fill the viewport
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '2rem',
+    backgroundImage: `url(${background})`
+  };
+
   const { data: session, status }  = useSession();
+  
   if (status != 'authenticated'){
         return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2rem', padding: '2rem' }}>
+          <div style={containerStyle}>        
             <Card style={cardStyle}>
             <CardContent>
                 <Typography variant="h5" component="div">
@@ -50,14 +61,18 @@ export default function Home() {
             </Card>
         </div>
         )
+ 
   }
     else{
+      const atIndex=session.user.email.indexOf('@');
+      const userName=session.user.email.slice(0,atIndex);
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2rem', padding: '2rem' }}>
+          <div style={containerStyle}>
+            
               <Card style={cardStyle}>
                 <CardContent>
                   <Typography variant="h5" component="div">
-                    Welcome {session.user.email.slice(0, session.user.email.length - 10)}!
+                    Welcome {userName}!
                   </Typography>
                   <Typography variant="body2">
                     Check out your account.

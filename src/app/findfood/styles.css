@@ -1,0 +1,61 @@
+.food{
+    margin-left: 80px;
+    margin-right:80px;
+}
+.search-bar-container{
+    display:flex;
+    align-items:center;
+    margin-bottom:20px ;
+}
+
+.search-bar-container button{
+    box-shadow: 0px 2px 4px rgba(80, 79, 79, 0.3); 
+    height:43px;
+    padding: 0px 20px;
+    border-radius: 5px;
+    margin-left:5px;
+    background-color: #D4DECD;
+    color:#575856;
+
+
+}
+.search-bar .MuiOutlinedInput-root {
+    border-radius: 3px; /* Adjust the border radius as needed */
+    background-color: #F7F5F0; /* Adjust the background color as needed */
+    border-color:#F7F5F0;
+    padding:0px;
+    height:43px;
+  
+    box-shadow: 0px 2px 4px rgba(80, 79, 79, 0.3); 
+    
+       
+   
+}
+.search-bar .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color:rgb(164, 163, 156); /* Change the border color when focused */
+}
+
+.search-bar .MuiInputLabel-root {
+    color: rgb(120, 120, 125); /* Adjust the label color as needed */
+    line-height: 1;
+    font-size: 13px;
+}
+.food-item {
+    border: 1px solid rgb(143, 139, 139);
+    display: inline-block;
+    width: calc(20% - 10px);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    height:340px;
+    margin-left:10px;
+    background-color:#F7F5F0 ;
+    box-shadow: 0px 2px 4px rgba(80, 79, 79, 0.3); 
+    min-width: 290px; 
+}
+
+.food-list {
+    display: flex;
+    flex-wrap: wrap;
+    overflow-x: auto;
+    
+}
