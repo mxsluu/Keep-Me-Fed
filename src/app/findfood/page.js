@@ -11,7 +11,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Favorite, FavoriteBorder } from '@mui/icons-material';
+import { CollectionsBookmarkOutlined, Favorite, FavoriteBorder } from '@mui/icons-material';
 import { useSearchParams, useRouter } from 'next/navigation'
 import { create } from 'domain';
 import { useSession } from 'next-auth/react';
@@ -32,33 +32,63 @@ export default function findFoods() {
     const [customLat, setCustomLat] = useState('');
     const [customLng, setCustomLng] = useState('');
     const [error, setError] = useState(null);
-    const [user, setUser] = useState([])
-
+    const [user, setUser] = useState(null);
+    const [dailyBudget, setDailyBudget] = useState(0);
+    const [limit, setLimit] = useState(0)
 
     const initialFetch = async function() {
-        fetchFoods();
-        fetchFavorites();
-        fetchLocation();
-        fetchUser()
-        setIsLoading(false);
+        const userResponse = await fetch("/api/users", { method: "get" })
+        if (userResponse.ok){
+            const user = await userResponse.json();
+            setUser(user);
+            const daily = Number(user.budget / 7).toFixed(2)
+            setDailyBudget(daily)
+            const limit = calculatePriceRange(daily)
+            setLimit(limit)
+            const foodResponse = await fetch("/api/foods?" + createQueryString('limit', limit), { method: "get" })
+            if (foodResponse.ok){
+                const foods = await foodResponse.json();
+                setFoods(foods)
+                const favoriteResponse = await fetch("/api/favorite", { method: "get" })
+                if (favoriteResponse.ok){
+                    const favorites = await favoriteResponse.json()
+                    setFavorites(favorites);
+                }
+            }
+            fetchLocation();
+            setIsLoading(false);
+        }
+        else{
+            fetchFoods();
+            fetchLocation();
+            setIsLoading(false);
+        }
+    }
+
+    function calculatePriceRange(budget){
+        if (budget >= 0 && budget <= 10){
+            return 1;
+        }
+        else if (budget > 10 && budget <= 20){
+            return 2;
+        }
+        else if (budget > 20){
+            return 3;
+        }
+        else{
+            return 0;
+        }
     }
     
-    const fetchUser =  async function () {
-        fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
-            user => {
-                user && setUser(user);
-        });
-    };
-
     const fetchFoods = async function () {
-        fetch("/api/foods", { method: "get" }).then((res) => res.ok && res.json()).then(
+        await fetch("/api/foods?" + createQueryString('limit', limit), { method: "get" }).then((res) => res.ok && res.json()).then(
             foods => {
                 foods && setFoods(foods);
         });
     };
 
     const fetchFavorites = async function () {
-        fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
+        await fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
             favorites => {
                 favorites && setFavorites(favorites);
         });
@@ -84,8 +114,8 @@ export default function findFoods() {
             navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
           }
     }
-    function favoriteFood(food){
-        fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})}).then((res) => {
+    async function favoriteFood(food){
+        await fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})}).then((res) => {
             if(res.ok) {
                 fetchFoods();
                 setFavorites([...favorites, food])
@@ -93,8 +123,8 @@ export default function findFoods() {
         });
     }
 
-    function unfavoriteFood(food){
-        fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})}).then((res) => {
+    async function unfavoriteFood(food){
+        await fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})}).then((res) => {
             if(res.ok) {
                 setFoods([...foods, food])
                 fetchFavorites()
@@ -116,21 +146,21 @@ export default function findFoods() {
       }
     
 
-    function searchFood() {
+    async function searchFood() {
         const searchString = createQueryString('search', searchInput)
-        fetch("/api/foods" + '?' + searchString, { method: "get" }).then((res) => res.ok && res.json()).then(
+        await fetch("/api/foods" + '?' + searchString + '&' + createQueryString('limit', limit) , { method: "get" }).then((res) => res.ok && res.json()).then(
             foods => {
                 foods && setFoods(foods);
         })
     };
 
     function sortPriceAsc() {
-        foods.sort((foodA, foodB) => foodA.priceRange.length - foodB.priceRange.length)
+        foods.sort((foodA, foodB) => foodA.priceRange - foodB.priceRange)
         setFoods([...foods])
     };
 
     function sortPriceDesc() {
-        foods.sort((foodA, foodB) => foodB.priceRange.length - foodA.priceRange.length)
+        foods.sort((foodA, foodB) => foodB.priceRange - foodA.priceRange)
         setFoods([...foods])
     };
 
@@ -153,6 +183,7 @@ export default function findFoods() {
         foods.sort((foodA, foodB) => foodB.distance - foodA.distance)
         setFoods([...foods])
     };
+
 
     function goToFood(food){
         if (food.type == "recipe") {    
@@ -197,18 +228,19 @@ export default function findFoods() {
         return deg * (Math.PI/180);
       }
       
-      function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
-        const earthRadius = 3958.8; // Radius of the Earth in miles
-        const dLat = deg2rad(lat2 - lat1);
-        const dLon = deg2rad(lon2 - lon1);
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = earthRadius * c; // Distance in miles
-        return distance;
-      }
+    function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
+    const earthRadius = 3958.8; // Radius of the Earth in miles
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = earthRadius * c; // Distance in miles
+    return distance;
+    }
+
 
     const foodList = IsLoading ? loadingItems: foods.map((food) => {
         if (food.type == "restaurant"){
@@ -230,7 +262,7 @@ export default function findFoods() {
             }>  
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
-                    <ListItemText primary={food.priceRange}/>
+                    <ListItemText primary={'$'.repeat(food.priceRange)}/>
                     <ListItemText primary={distance}/>
                     <ListItemText primary={Number(30 + time).toFixed(2)}/>
                 </ListItemButton>
@@ -240,7 +272,7 @@ export default function findFoods() {
             return <ListItem>
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
-                    <ListItemText primary={food.priceRange}/>
+                    <ListItemText primary={'$'.repeat(food.priceRange)}/>
                     <ListItemText primary={distance}/>
                     <ListItemText primary={Number(30 + time).toFixed(2)}/>
                 </ListItemButton>
@@ -269,7 +301,7 @@ export default function findFoods() {
             }>
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
-                    <ListItemText primary={food.priceRange}/>
+                    <ListItemText primary={'$'.repeat(food.priceRange)}/>
                     <ListItemText primary={distance}/>
                     <ListItemText primary={Number(30 + time).toFixed(2)}/>
                 </ListItemButton>
@@ -277,21 +309,31 @@ export default function findFoods() {
         }
     });   
 
+    function displayBudget(){
+        if (!IsLoading){
+            return(
+                <p>Daily Budget: {dailyBudget} </p>
+            )
+        }
+        else{
+            return(loadingItems)
+        }
+    }
    // 35.29563278166948, -120.67837015960859
    // 35.26289912945568, -120.6774243085059 : MCdonalds
    // 35.293915501012656, -120.6722660632114 : Panda Express
 
     return (
         <div>
-        <p>
-        Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>
+        {status == "authenticated" && displayBudget()}
+        {IsLoading ? loadingItems: <p>Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>}
         <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
         <button onClick={searchFood}>Search</button>
         <button onClick={resetSearch}>Reset Search</button>
         <button onClick={sortPriceAsc}>Sort by Price Ascending</button>
         <button onClick={sortPriceDesc}>Sort by Price Descending</button>
         <button onClick={sortTimeAsc}>Sort by Time Ascending</button>
-        <button onClick={sortTimeDesc}>Sort by Time Descending</button>
+        <button onClick={sortTimeDesc}>Sort by Time Descending</button> 
         <button onClick={sortDistanceAsc}>Sort by Distance Ascending</button>
         <button onClick={sortDistanceDesc}>Sort by Distance Descending</button>
         <TextField label="Latitude" fullWidth variant="outlined" value={customLat} onChange={updateCustomLat}/>
@@ -300,7 +342,7 @@ export default function findFoods() {
         {status == "authenticated" && <button onClick={useAccountLocation}>Get Account Location</button>}
             <List sx={{ width: '100%', maxWidth: 1500 }}>
                 {status == "authenticated" && <h1>Favorite List</h1>}
-                { favoriteList }
+                {status == "authenticated" && favoriteList }
                 <h1>Meals</h1>
                 { foodList }
                 {!(IsLoading) && <ListItem key="food">

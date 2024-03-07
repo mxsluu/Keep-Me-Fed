@@ -6,8 +6,7 @@ export async function GET(request) {
   const loggedInData = await checkLoggedIn();
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search');
-    //const sortAttribute = searchParams.get('searchAttribute')
-    //const sortOrder = searchParams.get('sortOrder')
+    const limit = parseInt(searchParams.get('limit'));
     if (loggedInData.loggedIn){
       if (search != null && search.length){
         search.replace("%20")
@@ -26,6 +25,11 @@ export async function GET(request) {
                     id: loggedInData.user.id
                   }
                 }
+              },
+              {
+                priceRange:{
+                  lte: limit
+                }
               }
             ]
           }
@@ -45,6 +49,11 @@ export async function GET(request) {
                     id: loggedInData.user.id
                   }
                 }
+              },
+              {
+                priceRange:{
+                  lte: limit
+                }
               }
             ]
           }
@@ -54,22 +63,40 @@ export async function GET(request) {
       else{
         const recipes = await prisma.recipe.findMany({
           where: {
-              userID: {
-                none: {
-                  id: loggedInData.user.id
+            AND: [
+              {
+                userID: {
+                  none: {
+                    id: loggedInData.user.id
+                  }
+                }
+              },
+              {
+                priceRange:{
+                  lte: limit
                 }
               }
-            }
+            ]
+          }
         });
         const restaurants = await prisma.restaurant.findMany({
           where: {
-            userID: {
-              none: {
-                id: loggedInData.user.id
+            AND: [
+              {
+                userID: {
+                  none: {
+                    id: loggedInData.user.id
+                  }
+                }
+              },
+              {
+                priceRange:{
+                  lte: limit
+                }
               }
-            }
+            ]
           }
-      });
+        });
         return NextResponse.json([...recipes.map(r => ({...r, type: 'recipe', distance: null})), ...restaurants.map(r => ({...r, type: 'restaurant', cookTime: null, distance: null}))]);
       }
     }
