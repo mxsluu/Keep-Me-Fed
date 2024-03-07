@@ -3,6 +3,8 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "budget" INTEGER NOT NULL,
+    "location" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -20,9 +22,8 @@ CREATE TABLE "ToDo" (
 -- CreateTable
 CREATE TABLE "BusyBlock" (
     "id" SERIAL NOT NULL,
-    "day" TEXT NOT NULL,
-    "startTime" TEXT NOT NULL,
-    "endTime" TEXT NOT NULL,
+    "startTime" TIMESTAMP(3) NOT NULL,
+    "endTime" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "BusyBlock_pkey" PRIMARY KEY ("id")
@@ -69,7 +70,7 @@ CREATE TABLE "Recipe" (
 -- CreateTable
 CREATE TABLE "Eaten" (
     "id" SERIAL NOT NULL,
-    "date" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
     "recipieId" INTEGER,
     "restaurantId" INTEGER,

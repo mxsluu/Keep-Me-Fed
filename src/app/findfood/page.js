@@ -32,7 +32,8 @@ export default function findFoods() {
     const [customLat, setCustomLat] = useState('');
     const [customLng, setCustomLng] = useState('');
     const [error, setError] = useState(null);
-    const [user, setUser] = useState([])
+    const [user, setUser] = useState([]);
+    const [schedule, setSchedule] = useState([]);
 
 
     const initialFetch = async function() {
@@ -40,6 +41,7 @@ export default function findFoods() {
         fetchFavorites();
         fetchLocation();
         fetchUser()
+        fetchSchedule();
         setIsLoading(false);
     }
     
@@ -49,6 +51,13 @@ export default function findFoods() {
                 user && setUser(user);
         });
     };
+
+    const fetchSchedule = async function () {
+        fetch("/api/schedule", { method: "get" }).then((response) => response.ok && response.json()).then(
+            schedule => {
+                schedule && setSchedule(schedule);
+        });
+    }
 
     const fetchFoods = async function () {
         fetch("/api/foods", { method: "get" }).then((res) => res.ok && res.json()).then(
