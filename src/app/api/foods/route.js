@@ -23,111 +23,68 @@ export async function GET(request) {
       var limit = 3
     }
     if (loggedInData.loggedIn){
-      if (search != null && search.length){
-        search.replace("%20")
-        const recipes = await prisma.recipe.findMany({
-          where: {
-            AND: [
-                {
-                name: {
-                  contains: search,
-                  mode: 'insensitive'
-                },
-              },
-              {
-                userID: {
-                  none: {
-                    id: loggedInData.user.id
-                  }
-                }
-              },
-              {
-                priceRange:{
-                  lte: limit
-                }
-              }
-            ]
-          }
-        });
-        const restaurants = await prisma.restaurant.findMany({
-          where: {
-            AND: [
-                {
-                name: {
-                  contains: search,
-                  mode: 'insensitive'
-                },
-              },
-              {
-                userID: {
-                  none: {
-                    id: loggedInData.user.id
-                  }
-                }
-              },
-              {
-                priceRange:{
-                  lte: limit
-                }
-              }
-            ]
-          }
-        });
-        var foods = [...recipes.map(r => ({...r, type: 'recipe', distance: 0})), 
-        ...restaurants.map(r => ({...r, type: 'restaurant', 
-        distance: getDistanceFromLatLonInMiles(latitude, longitude, parseFloat(r.location.split(',')[0]), parseFloat(r.location.split(',')[1])), 
-        cookTime: calculateTime(getDistanceFromLatLonInMiles(latitude, longitude, parseFloat(r.location.split(',')[0]), parseFloat(r.location.split(',')[1])))}))]
-        sortFoods(sortType, sortOrder, foods)
-        return NextResponse.json(foods)
+      if (search != null){
+        search.replace('%20')
       }
-      else{
-        const recipes = await prisma.recipe.findMany({
-          where: {
-            AND: [
+      const recipes = await prisma.recipe.findMany({
+        where: {
+          AND: [
               {
-                userID: {
-                  none: {
-                    id: loggedInData.user.id
-                  }
-                }
+              name: {
+                contains: search,
+                mode: 'insensitive'
               },
-              {
-                priceRange:{
-                  lte: limit
+            },
+            {
+              userID: {
+                none: {
+                  id: loggedInData.user.id
                 }
               }
-            ]
-          }
-        });
-        const restaurants = await prisma.restaurant.findMany({
-          where: {
-            AND: [
+            },
+            {
+              priceRange:{
+                lte: limit
+              }
+            }
+          ]
+        }
+      });
+      const restaurants = await prisma.restaurant.findMany({
+        where: {
+          AND: [
               {
-                userID: {
-                  none: {
-                    id: loggedInData.user.id
-                  }
-                }
+              name: {
+                contains: search,
+                mode: 'insensitive'
               },
-              {
-                priceRange:{
-                  lte: limit
+            },
+            {
+              userID: {
+                none: {
+                  id: loggedInData.user.id
                 }
               }
-            ]
-          }
-        });
-        var foods = [...recipes.map(r => ({...r, type: 'recipe', distance: 0})), 
-        ...restaurants.map(r => ({...r, type: 'restaurant', 
-        distance: getDistanceFromLatLonInMiles(latitude, longitude, parseFloat(r.location.split(',')[0]), parseFloat(r.location.split(',')[1])), 
-        cookTime: calculateTime(getDistanceFromLatLonInMiles(latitude, longitude, parseFloat(r.location.split(',')[0]), parseFloat(r.location.split(',')[1])))}))]
-        sortFoods(sortType, sortOrder, foods)
-        return NextResponse.json(foods)
-      }
+            },
+            {
+              priceRange:{
+                lte: limit
+              }
+            }
+          ]
+        }
+      });
+      var foods = [...recipes.map(r => ({...r, type: 'recipe', distance: 0})), 
+      ...restaurants.map(r => ({...r, type: 'restaurant', 
+      distance: getDistanceFromLatLonInMiles(latitude, longitude, parseFloat(r.location.split(',')[0]), parseFloat(r.location.split(',')[1])), 
+      cookTime: calculateTime(getDistanceFromLatLonInMiles(latitude, longitude, parseFloat(r.location.split(',')[0]), parseFloat(r.location.split(',')[1])))}))]
+      sortFoods(sortType, sortOrder, foods)
+      return NextResponse.json(foods)
     }
     else {
-      if (search != null && search.length){
-        search.replace("%20")
+      if (search != null){
+        search.replace('%20')
+      }
         const recipes = await prisma.recipe.findMany({
           where: {
                 name: {
@@ -151,17 +108,6 @@ export async function GET(request) {
             sortFoods(sortType, sortOrder, foods)
             return NextResponse.json(foods)  
           }
-      else{
-        const recipes = await prisma.recipe.findMany({});
-        const restaurants = await prisma.restaurant.findMany({});
-        var foods = [...recipes.map(r => ({...r, type: 'recipe', distance: 0})), 
-        ...restaurants.map(r => ({...r, type: 'restaurant', 
-        distance: getDistanceFromLatLonInMiles(latitude, longitude, parseFloat(r.location.split(',')[0]), parseFloat(r.location.split(',')[1])), 
-        cookTime: calculateTime(getDistanceFromLatLonInMiles(latitude, longitude, parseFloat(r.location.split(',')[0]), parseFloat(r.location.split(',')[1])))}))]
-        sortFoods(sortType, sortOrder, foods)
-        return NextResponse.json(foods)
-      }
-    }
   }
   function calculatePriceRange(budget){
     if (budget >= 0 && budget <= 10){
