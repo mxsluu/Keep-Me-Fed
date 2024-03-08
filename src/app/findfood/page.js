@@ -283,8 +283,8 @@ export default function findFoods() {
         }
         else{
             return (
-                <Box key={food.id} className="food-item">
                 <ListItem>
+                <Box key={food.id} className="food-item">
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
                         <div>
@@ -296,8 +296,8 @@ export default function findFoods() {
                     }/>
                     <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px' }}/>
                 </ListItemButton>
-            </ListItem>
             </Box>
+            </ListItem>
             );
         }
     });
