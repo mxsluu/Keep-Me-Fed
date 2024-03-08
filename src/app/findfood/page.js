@@ -59,13 +59,13 @@ export default function findFoods() {
                 if (favoriteResponse.ok){
                     const favorites = await favoriteResponse.json()
                     setFavorites(favorites);
+                    fetchLocation();
+                    setIsLoading(false);
                 }
             }
-            fetchLocation();
-            setIsLoading(false);
         }
         else{
-            fetchFoods();
+            fetchFoods().then((foods) => setFoods(foods));
             fetchLocation();
             setIsLoading(false);
         }
@@ -83,18 +83,14 @@ export default function findFoods() {
         }
         else{
             return 0;
-        }
+        }   
     }
     
-    const fetchFoods = async function () {
-        await fetch("/api/foods?" + createQueryString('limit', limit), { method: "get" }).then((res) => res.ok && res.json()).then(
-            foods => {
-                foods && setFoods(foods);
-        });
-    };
-
-    const fetchFavorites = async function () {
-        await fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
+    const fetchFoods = function () {
+        return fetch("/api/foods?" + createQueryString('limit', limit), { method: "get" }).then((res) => res.ok && res.json())
+    }
+    const fetchFavorites = function () {
+        fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
             favorites => {
                 favorites && setFavorites(favorites);
         });
@@ -104,7 +100,7 @@ export default function findFoods() {
         initialFetch();
     }, []);
 
-    const fetchLocation = async function() {
+    const fetchLocation = function() {
         const successHandler = (position) => {
             setLocalLatitude(position.coords.latitude);
             setLocalLongitude(position.coords.longitude);
@@ -120,17 +116,20 @@ export default function findFoods() {
             navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
           }
     }
-    async function favoriteFood(food){
-        await fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})}).then((res) => {
+    function favoriteFood(food){
+        fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})}).then((res) => {
             if(res.ok) {
-                fetchFoods();
-                setFavorites([...favorites, food])
+                fetchFoods().then((foods) => {
+                    setFoods(foods)
+                    setFavorites([...favorites, food]);
+                });
+                
             }
         });
     }
 
-    async function unfavoriteFood(food){
-        await fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})}).then((res) => {
+    function unfavoriteFood(food){
+        fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})}).then((res) => {
             if(res.ok) {
                 setFoods([...foods, food])
                 fetchFavorites()
@@ -152,9 +151,9 @@ export default function findFoods() {
       }
     
 
-    async function searchFood() {
+    function searchFood() {
         const searchString = createQueryString('search', searchInput)
-        await fetch("/api/foods" + '?' + searchString + '&' + createQueryString('limit', limit) , { method: "get" }).then((res) => res.ok && res.json()).then(
+        fetch("/api/foods" + '?' + searchString + '&' + createQueryString('limit', limit) , { method: "get" }).then((res) => res.ok && res.json()).then(
             foods => {
                 foods && setFoods(foods);
         })
@@ -201,7 +200,7 @@ export default function findFoods() {
     }
 
     function resetSearch(){
-        fetchFoods();
+        fetchFoods().then((foods) => setFoods(foods));
     }
 
     function updateCustomLat(event){
@@ -248,7 +247,8 @@ export default function findFoods() {
     }
 
 
-    const foodList = IsLoading ? loadingItems: foods.map((food) => {
+    const foodList = () => {
+        return foods.map((food) => {
         if (food.type == "restaurant"){
             const restaurantLongitudeAndLatitude = food.location.split(',')
             var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
@@ -261,14 +261,11 @@ export default function findFoods() {
             var time = food.cookTime
             food.distance = 0
         }
-        if (status == 'authenticated'){
-            
+        if (status == 'authenticated'){         
             return (
+            <ListItem>  
+                <IconButton edge="end" onClick={() => favoriteFood(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>
                 <Box key={food.id} className="food-item">
-            <ListItem
-            secondaryAction={
-                <IconButton edge="end" onClick={() => favoriteFood(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>   
-            }>  
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
                         <div>
@@ -280,8 +277,8 @@ export default function findFoods() {
                     }/>
                   <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px'}}/>
                 </ListItemButton>
+                </Box>
             </ListItem>
-            </Box>
             );
         }
         else{
@@ -304,7 +301,7 @@ export default function findFoods() {
             );
         }
     });
-  
+}
     
     const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
         if (food.type == "restaurant"){
@@ -321,11 +318,9 @@ export default function findFoods() {
         }
         if (status == 'authenticated'){
             return (
-                <Box key={food.id} className="food-item">
-            <ListItem
-            secondaryAction={
-                <IconButton edge="end" onClick={() => unfavoriteFood(food)} aria-label='Favorite Food'><Favorite/></IconButton>   
-            }>  
+            <ListItem>
+            <Box key={food.id} className="food-item">
+            <IconButton edge="end" onClick={() => unfavoriteFood(food)} aria-label='Favorite Food'><Favorite/></IconButton>     
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
                         <div>
@@ -337,8 +332,8 @@ export default function findFoods() {
                     }/>
                   <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px'}}/>
                 </ListItemButton>
+                </Box>
             </ListItem>
-            </Box>
             );
         }
     });   
@@ -413,9 +408,7 @@ export default function findFoods() {
         </div>
             <List sx={{ width: '100%', maxWidth: 2000 }}>
                 <h1>Meals</h1>
-                { foodList }
-                {!(IsLoading) && <ListItem key="food">
-                </ListItem>}
+                { IsLoading ? loadingItems : foodList() }
             </List>
         </div>
     )

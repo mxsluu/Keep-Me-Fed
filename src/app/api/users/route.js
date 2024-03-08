@@ -10,6 +10,9 @@ export async function GET(request) {
     const user = await prisma.user.findUnique({
       where: {
         id: loggedInData.user?.id
+      },
+      include: {
+        busyblocks: true
       }
     });
     return NextResponse.json(user);
