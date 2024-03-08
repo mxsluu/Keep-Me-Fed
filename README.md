@@ -1,68 +1,66 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Keep Me Fed is a platform where people can find ways of obtaining meals; either through low-budget recipes or restaurants that fit within their preferences. People can then find places where they can purchase the ingredients to these recipes or the actual restaurants themselves. The meal options that users will see will be prioritized in accordance with their daily schedule and their budget.
 
 ## Getting Started
+First, clone the repository.
 
-First, get a database running. You will need Docker installed on your machine. 
+```bash
+git clone git@github.com:CSC307Winter2024/KeepMeFed.git
+```
+Then, enter the root directory.
+
+```bash
+cd KeepMeFed
+```
+
+Then, get a database running. You will need Docker installed on your machine. 
 
 ```bash
 docker-compose up
 ```
 
-Then, make sure all your node modules are installs
+Then, make sure all your node modules are installed.
 
 ```bash
 npm install
 ```
 
-Next, make sure you modify the .env file to have the correct information for database connection. If you don't have a .env file
-create one in the root of your repo with the following information: 
+Next, make a .env file in the root directory with the following:
 
 ```
 DATABASE_URL="postgresql://admin:password@localhost:5432/mydb?schema=public"
 NEXTAUTH_SECRET="<some secret here>"
 ```
-
-Make sure the database is migrated. 
+Start prisma client and name the migration "initial". The seed command will automatically run and populate the database. If prompted to reset the public schema, enter "y" and continue.
 
 ```bash
 npx prisma migrate dev
 ```
 
-Name the migration `initial`
+If there is any errors in seeding or populating the database, try resetting the database (the seed command will automatically rerun as well).
 
-Finally, run the development server:
+```bash
+npx prisma migrate reset
+```
+
+Start the application with the following command.
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to launch Keep Me Fed.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-- [Prisma Documentation](https://www.prisma.io/docs/getting-started) - the docs for the ORM we are using. 
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-## Look at your database
+## Look at the database in Prisma studio.
 
 ```bash
 npx prisma studio
 ```
-
+## Known issues/bugs
+* Attempting to place multiple busyBlocks in the same time slot in the calendar will cause unexpected results.
+* Calendar toolbar is still being developed and not fully functional
+* Attempting to enter strings into budget input can cause unexpected results/issues
+* Attempting to use "," for large budgets may lead to issues (untested/uknown for things like 1,000 or 10,000 but if this is your weekly budget do you really need this app?)
+* User location input has to be in the form lat,long at the moment (anything other form can cause issues)
+* Location input has to be in coordinates for this version
 
