@@ -16,14 +16,21 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Drawer,   Button ,Box} from '@mui/material';
 import { create } from 'domain';
 import { useSession } from 'next-auth/react';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Switch from '@mui/material/Switch';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+
 
 import './styles.css';
-
-
 
 export default function findFoods() {
     const router = useRouter()
     const [searchInput, setSearchInput] = useState('');
+    const [resetSearchButton, setResetSearchButton] = useState(false);
     const [foods, setFoods] = useState([]);
     const [favorites, setFavorites] = useState([]);
     const [IsLoading, setIsLoading] = useState(true);
@@ -37,68 +44,67 @@ export default function findFoods() {
     const [error, setError] = useState(null);
     const [user, setUser] = useState(null);
     const [dailyBudget, setDailyBudget] = useState(0);
-    const [limit, setLimit] = useState(0)
+    const [budgetFilter, setBudgetFilter] = useState(true)
+    const [sortOption, setSortOption] = useState('')
+    const [sortQuery, setSortQuery] = useState({sortType: null, sortOrder: null}) 
     const [showFilters, setShowFilters] = useState(false);
-    const [filterValue, setFilterValue] = useState(''); 
+    const [filters, setFilters] = useState(false);
 
+    useEffect(() => {
+        initialFetch()
+    }, []);
+
+    useEffect(() => {
+        updateFoods()
+    }, [filters, favorites, locallatitude, locallongitude, resetSearchButton]);
 
     const initialFetch = async function() {
+        fetchLocation()
         const userResponse = await fetch("/api/users", { method: "get" })
         if (userResponse.ok){
             const user = await userResponse.json();
             setUser(user);
             const daily = Number(user.budget / 7).toFixed(2)
             setDailyBudget(daily)
-            const limit = calculatePriceRange(daily)
-            setLimit(limit)
-            const foodResponse = await fetch("/api/foods?" + createQueryString('limit', limit), { method: "get" })
-            if (foodResponse.ok){
-                const foods = await foodResponse.json();
-                setFoods(foods)
-                const favoriteResponse = await fetch("/api/favorite", { method: "get" })
-                if (favoriteResponse.ok){
-                    const favorites = await favoriteResponse.json()
-                    setFavorites(favorites);
-                    fetchLocation();
-                    setIsLoading(false);
-                }
+            const favoriteResponse = await fetch("/api/favorite", { method: "get" })
+            if (favoriteResponse.ok){
+                const favorites = await favoriteResponse.json()
+                setFavorites(favorites);
+                setIsLoading(false);
             }
         }
         else{
-            fetchFoods().then((foods) => setFoods(foods));
-            fetchLocation();
+            updateFoods();
             setIsLoading(false);
         }
     }
-
-    function calculatePriceRange(budget){
-        if (budget >= 0 && budget <= 10){
-            return 1;
-        }
-        else if (budget > 10 && budget <= 20){
-            return 2;
-        }
-        else if (budget > 20){
-            return 3;
-        }
-        else{
-            return 0;
-        }   
-    }
     
     const fetchFoods = function () {
-        return fetch("/api/foods?" + createQueryString('limit', limit), { method: "get" }).then((res) => res.ok && res.json())
+        const searchString = createQueryString('search', searchInput)
+        const budgetFilterString = createQueryString('budgetFilter', budgetFilter)
+        const longitude = createQueryString('longitude', locallongitude)
+        const latitude = createQueryString('latitude', locallatitude)
+        const sortType = createQueryString('sortType', sortQuery.sortType)
+        const sortOrder = createQueryString('sortOrder', sortQuery.sortOrder)
+        return fetch("/api/foods?" + "&" + searchString + "&" + budgetFilterString + "&" + longitude + "&" + latitude
+                + "&" + sortType + "&" + sortOrder, { method: "get" })
     }
+
+    async function updateFoods() {
+        const foodsResponse = await fetchFoods()
+        if (foodsResponse.ok){
+            const foods = await foodsResponse.json();
+            setFoods(foods)
+        }
+    };
+
     const fetchFavorites = function () {
         fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
             favorites => {
                 favorites && setFavorites(favorites);
         });
     };
-    
-    useEffect(() => {
-        initialFetch();
-    }, []);
+
 
     const fetchLocation = function() {
         const successHandler = (position) => {
@@ -116,26 +122,27 @@ export default function findFoods() {
             navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
           }
     }
-    function favoriteFood(food){
-        fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})}).then((res) => {
-            if(res.ok) {
-                fetchFoods().then((foods) => {
-                    setFoods(foods)
-                    setFavorites([...favorites, food]);
-                });
-                
-            }
-        });
+    async function favoriteFood(food){
+        const favoriteReponse = await fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})})
+        if (favoriteReponse.ok){
+            fetchFavorites();
+        }
     }
 
-    function unfavoriteFood(food){
-        fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})}).then((res) => {
-            if(res.ok) {
-                setFoods([...foods, food])
-                fetchFavorites()
-            }
-        });
+    async function unFavoriteFood(food){
+        const unFavoriteReponse = await fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})})
+        if (unFavoriteReponse.ok){
+            fetchFavorites();
+        }
     }
+
+    function favoriteFoodHandler(food) {
+        favoriteFood(food);
+    };
+
+    function unFavoriteFoodHandler(food) {
+        unFavoriteFood(food);
+    };
 
     const createQueryString = useCallback(
         (name, value) => {
@@ -150,45 +157,41 @@ export default function findFoods() {
         setSearchInput(event.target.value);
       }
     
-
-    function searchFood() {
-        const searchString = createQueryString('search', searchInput)
-        fetch("/api/foods" + '?' + searchString + '&' + createQueryString('limit', limit) , { method: "get" }).then((res) => res.ok && res.json()).then(
-            foods => {
-                foods && setFoods(foods);
-        })
+    function searchFoodHandler() {
+        updateFoods();
     };
 
-    function sortPriceAsc() {
-        foods.sort((foodA, foodB) => foodA.priceRange - foodB.priceRange)
-        setFoods([...foods])
+    function sortHandler(event){
+        setSortOption(event.target.value)
+        switch (event.target.value){
+            case 0:
+                setSortQuery({sortType: 'price', sortOrder: 'a'})
+                break
+            case 1:
+                setSortQuery({sortType: 'price', sortOrder: 'd'})
+                break
+            case 2:
+                setSortQuery({sortType: 'time', sortOrder: 'a'})
+                break
+            case 3:
+                setSortQuery({sortType: 'time', sortOrder: 'd'})
+                break
+            case 4:
+                setSortQuery({sortType: 'distance', sortOrder: 'a'})
+                break
+            case 5:
+                setSortQuery({sortType: 'distance', sortOrder: 'd'})
+                break     
+        }
+    }
+
+    const toggleBudgetFilter = (event) => {
+        setBudgetFilter(event.target.checked)
     };
 
-    function sortPriceDesc() {
-        foods.sort((foodA, foodB) => foodB.priceRange - foodA.priceRange)
-        setFoods([...foods])
-    };
-
-    function sortTimeAsc() {
-        foods.sort((foodA, foodB) => foodA.cookTime - foodB.cookTime)
-        setFoods([...foods])
-    };
-
-    function sortTimeDesc() {
-        foods.sort((foodA, foodB) => foodB.cookTime - foodA.cookTime)
-        setFoods([...foods])
-    };
-
-    function sortDistanceAsc() {
-        foods.sort((foodA, foodB) => foodA.distance - foodB.distance)
-        setFoods([...foods])
-    };
-
-    function sortDistanceDesc() {
-        foods.sort((foodA, foodB) => foodB.distance - foodA.distance)
-        setFoods([...foods])
-    };
-
+    const filterHandler = () => {
+        setFilters(!filters)
+    }
 
     function goToFood(food){
         if (food.type == "recipe") {    
@@ -199,8 +202,11 @@ export default function findFoods() {
         }
     }
 
-    function resetSearch(){
-        fetchFoods().then((foods) => setFoods(foods));
+    function resetSearchHandler(){
+        setResetSearchButton(!resetSearchButton)
+        setSearchInput('')
+        setShowFilters(false)
+        setSortQuery({sortType: null, sortOrder: null})
     }
 
     function updateCustomLat(event){
@@ -229,50 +235,20 @@ export default function findFoods() {
         }
     }
 
-    function deg2rad(deg) {
-        return deg * (Math.PI/180);
-      }
-      
-    function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
-    const earthRadius = 3958.8; // Radius of the Earth in miles
-    const dLat = deg2rad(lat2 - lat1);
-    const dLon = deg2rad(lon2 - lon1);
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = earthRadius * c; // Distance in miles
-    return distance;
-    }
-
-
     const foodList = () => {
         return foods.map((food) => {
-        if (food.type == "restaurant"){
-            const restaurantLongitudeAndLatitude = food.location.split(',')
-            var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
-            var time = (distance / 18.6) * 60
-            food.cookTime = time
-            food.distance = distance
-        }
-        else{
-            var distance = 0
-            var time = food.cookTime
-            food.distance = 0
-        }
         if (status == 'authenticated'){         
             return (
             <ListItem>  
-                <IconButton edge="end" onClick={() => favoriteFood(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>
+                <IconButton edge="end" onClick={() => favoriteFoodHandler(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>
                 <Box key={food.id} className="food-item">
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
                         <div>
                         <h3>{food.name}</h3>
                         <p>Price Range: {'$'.repeat(food.priceRange)}</p>
-                        <p>Distance: {Number(distance).toFixed(2)} miles</p>
-                        <p>Time needed: {Number(30 + time).toFixed(2)} mins</p>
+                        <p>Distance: {Number(food.distance).toFixed(2)} miles</p>
+                        <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
                   <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px'}}/>
@@ -290,44 +266,31 @@ export default function findFoods() {
                         <div>
                         <h3>{food.name}</h3>
                         <p>Price Range: {'$'.repeat(food.priceRange)}</p>
-                        <p>Distance: {Number(distance).toFixed(2)} miles</p>
-                        <p>Time needed: {Number(30 + time).toFixed(2)} mins</p>
+                        <p>Distance: {Number(food.distance).toFixed(2)} miles</p>
+                        <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
                     <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px' }}/>
                 </ListItemButton>
             </Box>
             </ListItem>
-            );
-        }
-    });
-}
-    
+            );}
+        });
+    }
+
     const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
-        if (food.type == "restaurant"){
-            const restaurantLongitudeAndLatitude = food.location.split(',')
-            var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
-            var time = (distance / 18.6) * 60
-            food.cookTime = time
-            food.distance = distance
-        }
-        else{
-            var distance = 0
-            var time = food.cookTime
-            food.distance = 0
-        }
         if (status == 'authenticated'){
             return (
             <ListItem>
             <Box key={food.id} className="food-item">
-            <IconButton edge="end" onClick={() => unfavoriteFood(food)} aria-label='Favorite Food'><Favorite/></IconButton>     
+            <IconButton edge="end" onClick={() => unFavoriteFoodHandler(food)} aria-label='Favorite Food'><Favorite/></IconButton>     
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
                         <div>
                         <h3>{food.name}</h3>
                         <p>Price Range: {'$'.repeat(food.priceRange)}</p>
-                        <p>Distance: {Number(distance).toFixed(2)} miles</p>
-                        <p>Time needed: {Number(30 + time).toFixed(2)} mins</p>
+                        <p>Distance: {Number(food.distance).toFixed(2)} miles</p>
+                        <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
                   <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px'}}/>
@@ -358,53 +321,64 @@ export default function findFoods() {
             <Drawer anchor="left" variant="temporary" open={showFilters} onClose={() => setShowFilters(false)}>
                 <List>
                     <ListItem>
-                        <TextField
-                            label="Filter"
-                            variant="outlined"
-                            value={filterValue}
-                            onChange={(e) => setFilterValue(e.target.value)}
-                        />
+                    <FormControl sx={{ m: 1, minWidth: 200 }}>
+                        <InputLabel id="demo-simple-select-autowidth-label">Sort by</InputLabel>
+                        <Select
+                        labelId="demo-simple-select-autowidth-label"
+                        id="demo-simple-select-autowidth"
+                        value={sortOption}
+                        onChange={sortHandler}
+                        autoWidth
+                        label="Sort by"
+                        >
+                        <MenuItem value="">
+                            <em>None</em>
+                        </MenuItem>
+                        <MenuItem value={0}>Price Ascending </MenuItem>
+                        <MenuItem value={1}>Price Descending</MenuItem>
+                        <MenuItem value={2}>Time Ascending</MenuItem>
+                        <MenuItem value={3}>Time Descending </MenuItem>
+                        <MenuItem value={4}>Distance Ascending</MenuItem>
+                        <MenuItem value={5}>Distance Descending</MenuItem>
+                        </Select>
+                    </FormControl>
                     </ListItem>
                     <ListItem>
-                        <Button variant="contained" onClick={searchFood}>Apply Filters</Button>
+                        {status == "authenticated" &&
+                        <FormGroup>
+                            <FormControlLabel 
+                                control={<Switch
+                                        checked={budgetFilter}
+                                        onChange={toggleBudgetFilter}
+                                        inputProps={{ 'aria-label': 'controlled' }}
+                                />}
+                                label="Budget Filter"
+                            />
+                        </FormGroup>
+                        }
                     </ListItem>
-                    <ListItemButton onClick={() => (sortPriceAsc())}>
-                        <ListItemText primary={<p>Sort by Price Ascending</p>}/>
-                    </ListItemButton>
-                    <ListItemButton onClick={() => (sortPriceDesc())}>
-                        <ListItemText primary={<p>Sort by Price Descending</p>}/>
-                    </ListItemButton>
-                    <ListItemButton onClick={() => (sortTimeAsc())}>
-                        <ListItemText primary={<p>Sort by Time Ascending</p>}/>
-                    </ListItemButton>
-                    <ListItemButton onClick={() => (sortTimeDesc())}>
-                        <ListItemText primary={<p>Sort by Time Descending</p>}/>
-                    </ListItemButton>
-                    <ListItemButton onClick={() => (sortDistanceAsc())}>
-                        <ListItemText primary={<p>Sort by Distance Ascending</p>}/>
-                    </ListItemButton>
-                    <ListItemButton onClick={() => (sortDistanceDesc())}>
-                        <ListItemText primary={<p>Sort by Distance Descending</p>}/>
-                    </ListItemButton>
+                    <ListItem>
+                        <Button variant="contained" onClick={filterHandler}>Apply Filters</Button>
+                    </ListItem>
                 </List>
             </Drawer>
-        <Button onClick={resetSearch} style={{ color: '#7F8E76' }}>Reset Search</Button>
+        <Button onClick={resetSearchHandler} style={{ color: '#7F8E76' }}>Reset Search</Button>
         <p>
         {status == "authenticated" && displayBudget()}
         Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>
         <List sx={{ width: '50%', maxWidth: 1500 }}>
-            {status == "authenticated" && <h2>Favorite List</h2>}
+            {status == "authenticated" && <h2>Favorites</h2>}
             {status == "authenticated" && favoriteList }
         </List>
         <div className="search-bar-container">
         <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged} className="search-bar"/> 
-        <button onClick={searchFood} >SEARCH</button>
+        <button onClick={searchFoodHandler} >SEARCH</button>
         </div>
         <div className="search-bar-container">
         <TextField label="Latitude"  variant="outlined" value={customLat} onChange={updateCustomLat} className="search-bar"/>
         <TextField label="Longitude"  variant="outlined" value={customLng} onChange={updateCustomLng} className="search-bar"/>
-        <button onClick={updateLocation}>Use Location</button>
         {status == "authenticated" && <button onClick={useAccountLocation}>Get Account Location</button>}
+        <button onClick={updateLocation}>Use Location</button>
         </div>
             <List sx={{ width: '100%', maxWidth: 2000 }}>
                 <h1>Meals</h1>
