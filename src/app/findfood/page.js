@@ -55,8 +55,18 @@ export default function findFoods() {
     }, []);
 
     useEffect(() => {
-        updateFoods()
+        if (locallatitude != null && locallongitude != null){
+            updateFoods()
+        }
     }, [filters, favorites, locallatitude, locallongitude, resetSearchButton]);
+
+    useEffect(() => {
+        if (locallatitude != null && locallongitude != null && user != null){
+            fetchFavorites();
+        }
+    }, [locallatitude, locallongitude, user]);
+    
+    
 
     const initialFetch = async function() {
         fetchLocation()
@@ -66,16 +76,9 @@ export default function findFoods() {
             setUser(user);
             const daily = Number(user.budget / 7).toFixed(2)
             setDailyBudget(daily)
-            const favoriteResponse = await fetch("/api/favorite", { method: "get" })
-            if (favoriteResponse.ok){
-                const favorites = await favoriteResponse.json()
-                setFavorites(favorites);
-                setIsLoading(false);
-            }
         }
         else{
             updateFoods();
-            setIsLoading(false);
         }
     }
     
@@ -95,13 +98,16 @@ export default function findFoods() {
         if (foodsResponse.ok){
             const foods = await foodsResponse.json();
             setFoods(foods)
+            setIsLoading(false);
         }
     };
 
     const fetchFavorites = function () {
-        fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
+        const longitude = createQueryString('longitude', locallongitude)
+        const latitude = createQueryString('latitude', locallatitude)
+        fetch("/api/favorite?" + longitude + "&" + latitude , { method: "get" }).then((res) => res.ok && res.json()).then(
             favorites => {
-                favorites && setFavorites(favorites);
+                setFavorites(favorites);
         });
     };
 
@@ -278,28 +284,30 @@ export default function findFoods() {
         });
     }
 
-    const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
-        if (status == 'authenticated'){
-            return (
-            <ListItem>
-            <Box key={food.id} className="food-item">
-            <IconButton edge="end" onClick={() => unFavoriteFoodHandler(food)} aria-label='Favorite Food'><Favorite/></IconButton>     
-                <ListItemButton onClick={() => (goToFood(food))}>
-                    <ListItemText primary={
-                        <div>
-                        <h3>{food.name}</h3>
-                        <p>Price Range: {'$'.repeat(food.priceRange)}</p>
-                        <p>Distance: {Number(food.distance).toFixed(2)} miles</p>
-                        <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
-                        </div>
-                    }/>
-                  <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px'}}/>
-                </ListItemButton>
-                </Box>
-            </ListItem>
-            );
-        }
-    });   
+    const favoriteList = () => {
+        return favorites.map((food) => {
+            if (status == 'authenticated'){
+                return (
+                <ListItem>
+                <Box key={food.id} className="food-item">
+                <IconButton edge="end" onClick={() => unFavoriteFoodHandler(food)} aria-label='Favorite Food'><Favorite/></IconButton>     
+                    <ListItemButton onClick={() => (goToFood(food))}>
+                        <ListItemText primary={
+                            <div>
+                            <h3>{food.name}</h3>
+                            <p>Price Range: {'$'.repeat(food.priceRange)}</p>
+                            <p>Distance: {Number(food.distance).toFixed(2)} miles</p>
+                            <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
+                            </div>
+                        }/>
+                    <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px'}}/>
+                    </ListItemButton>
+                    </Box>
+                </ListItem>
+                );
+            }
+        });
+    }   
 
     function displayBudget(){
         if (!IsLoading){
@@ -363,12 +371,12 @@ export default function findFoods() {
                 </List>
             </Drawer>
         <Button onClick={resetSearchHandler} style={{ color: '#7F8E76' }}>Reset Search</Button>
-        <p>
+
         {status == "authenticated" && displayBudget()}
-        Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>
+        {IsLoading ? loadingItems : <p>Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>}
         <List sx={{ width: '50%', maxWidth: 1500 }}>
-            {status == "authenticated" && <h2>Favorites</h2>}
-            {status == "authenticated" && favoriteList }
+            {IsLoading ? loadingItems : status == "authenticated" && <h2>Favorites</h2>}
+            {status == "authenticated" && favoriteList() }
         </List>
         <div className="search-bar-container">
         <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged} className="search-bar"/> 
