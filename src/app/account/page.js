@@ -38,9 +38,16 @@ export default function Home() {
             user && setUser(user);
             setBudget(user.budget)
             setLocation(user.location)
-            }
-    );
-  }, []);
+            console.log(user.busyblocks)
+            user.busyblocks.map((block) => {
+              const title='Busy Block';
+              const newEvent={start: new Date(block.startTime), end: new Date(block.endTime), title};
+              setEvents((prevEvents) => [...prevEvents, newEvent]);
+            })
+          }
+      );
+    }, []);
+
 
   const fetchLocation = () => {
     const successHandler = (position) => {
@@ -170,7 +177,7 @@ export default function Home() {
           <button onClick={useCurrentLocation}>Get Current Location</button>
         </div>
         {/* Display the entered location on the screen only if the button is clicked */}
-       
+        {location.length && <p>Location: {location}</p> || <p>Location: No Location Entered</p>}
         <div style={{height:'500pt'}}>
           <h2>Calendar</h2>
           <Calendar 

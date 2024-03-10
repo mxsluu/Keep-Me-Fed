@@ -4,20 +4,23 @@ import { checkLoggedIn } from "@/lib/auth";
 
 
 export async function POST(request){
-    const data=await request.json();
-
-    const {startTime, endTime}=data;
-    const userId=1;
+    const loggedInData = await checkLoggedIn();
+    const {startTime, endTime}= await request.json()
+    const start = new Date(startTime)
+    const end = new Date(endTime)
+    const id = loggedInData.user.id
     let BusyBlock;
     try{
         BusyBlock=await prisma.BusyBlock.create({
             data: {
-                startTime,
-                endTime,
-                userId,
-         
+                startTime: start,
+                endTime: end,
+                user: {
+                    connect: {
+                        id
+                    }
+                }
             },
-            
         });
         return NextResponse.json(BusyBlock);
     }catch(error){
@@ -26,6 +29,7 @@ export async function POST(request){
     }
 }
 
+/*
 export async function GET(){
     const loggedInData = await checkLoggedIn();
     if (loggedInData.loggedIn) {
@@ -48,5 +52,5 @@ export async function GET(){
         // If the user is not logged in, return an error response
         return NextResponse.json({ error: 'User not authenticated' }, { status: 403 });
     }
-    
-} ad
+}
+*/
