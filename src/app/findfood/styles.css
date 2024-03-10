@@ -42,15 +42,16 @@
 }
 .food-item {
     border: 1px solid rgb(143, 139, 139);
-    display: inline-block;
-    width: calc(20% - 10px);
+    display: flex;
+    width:100%;
     border-radius: 5px;
     margin-bottom: 10px;
-    height:340px;
+    height:250px;
     margin-left:10px;
     background-color:#F7F5F0 ;
     box-shadow: 0px 2px 4px rgba(80, 79, 79, 0.3); 
-    min-width: 290px; 
+    min-width: 400px;
+    
 }
 
 .food-list {

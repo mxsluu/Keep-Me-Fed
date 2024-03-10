@@ -257,7 +257,7 @@ export default function findFoods() {
                         <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
-                  <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px'}}/>
+                  <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px'}}/>
                 </ListItemButton>
                 </Box>
             </ListItem>
@@ -276,7 +276,7 @@ export default function findFoods() {
                         <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
-                    <img src={food.photo} alt={food.name} style={{ width: '75px', height: '75px', marginRight: '10px' }}/>
+                    <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px' }}/>
                 </ListItemButton>
             </Box>
             </ListItem>
@@ -366,7 +366,7 @@ export default function findFoods() {
                         }
                     </ListItem>
                     <ListItem>
-                        <Button variant="contained" onClick={filterHandler}>Apply Filters</Button>
+                        <Button variant="contained" style={{ backgroundColor: '#7F8E76',display: 'flex', justifyContent: 'center' , marginLeft:'35px'}} onClick={filterHandler}>Apply Filters</Button>
                     </ListItem>
                 </List>
             </Drawer>
