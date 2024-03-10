@@ -246,8 +246,8 @@ export default function findFoods() {
         if (status == 'authenticated'){         
             return (
             <ListItem>  
-                <IconButton edge="end" onClick={() => favoriteFoodHandler(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>
                 <Box key={food.id} className="food-item">
+                <IconButton edge="end" onClick={() => favoriteFoodHandler(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
                         <div>
