@@ -129,14 +129,14 @@ export default function findFoods() {
           }
     }
     async function favoriteFood(food){
-        const favoriteReponse = await fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})})
+        const favoriteReponse = await fetch("/api/favorite", {method: 'put', body: JSON.stringify({food, option: "favorite"})})
         if (favoriteReponse.ok){
             fetchFavorites();
         }
     }
 
     async function unFavoriteFood(food){
-        const unFavoriteReponse = await fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})})
+        const unFavoriteReponse = await fetch("/api/favorite/", {method: 'put', body: JSON.stringify({food, option: "unfavorite"})})
         if (unFavoriteReponse.ok){
             fetchFavorites();
         }
