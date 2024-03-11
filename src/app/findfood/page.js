@@ -11,10 +11,11 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Favorite, FavoriteBorder } from '@mui/icons-material';
+import { CollectionsBookmarkOutlined, Favorite, FavoriteBorder } from '@mui/icons-material';
 import { useSearchParams, useRouter } from 'next/navigation'
 import { create } from 'domain';
 import { useSession } from 'next-auth/react';
+import DatePicker from 'react-datepicker';
 
 
 
@@ -32,42 +33,65 @@ export default function findFoods() {
     const [customLat, setCustomLat] = useState('');
     const [customLng, setCustomLng] = useState('');
     const [error, setError] = useState(null);
-    const [user, setUser] = useState([]);
+    const [user, setUser] = useState(null);
     const [schedule, setSchedule] = useState([]);
-
+    const [dailyBudget, setDailyBudget] = useState(0);
+    const [limit, setLimit] = useState(0)
 
     const initialFetch = async function() {
-        fetchFoods();
-        fetchFavorites();
-        fetchLocation();
-        fetchUser()
-        fetchSchedule();
-        setIsLoading(false);
+        const userResponse = await fetch("/api/users", { method: "get" })
+        if (userResponse.ok){
+            const user = await userResponse.json();
+            setUser(user);
+            const daily = Number(user.budget / 7).toFixed(2)
+            setDailyBudget(daily)
+            const limit = calculatePriceRange(daily)
+            setLimit(limit)
+            setSchedule(user.busyblocks)
+            const foodResponse = await fetch("/api/foods?" + createQueryString('limit', limit), { method: "get" })
+            if (foodResponse.ok){
+                const foods = await foodResponse.json();
+                setFoods(foods)
+                const favoriteResponse = await fetch("/api/favorite", { method: "get" })
+                if (favoriteResponse.ok){
+                    const favorites = await favoriteResponse.json()
+                    setFavorites(favorites);
+                }
+            }
+            fetchLocation();
+            setIsLoading(false);
+        }
+        else{
+            fetchFoods();
+            fetchLocation();
+            setIsLoading(false);
+        }
+    }
+
+    function calculatePriceRange(budget){
+        if (budget >= 0 && budget <= 10){
+            return 1;
+        }
+        else if (budget > 10 && budget <= 20){
+            return 2;
+        }
+        else if (budget > 20){
+            return 3;
+        }
+        else{
+            return 0;
+        }
     }
     
-    const fetchUser =  async function () {
-        fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
-            user => {
-                user && setUser(user);
-        });
-    };
-
-    const fetchSchedule = async function () {
-        fetch("/api/schedule", { method: "get" }).then((response) => response.ok && response.json()).then(
-            schedule => {
-                schedule && setSchedule(schedule);
-        });
-    }
-
     const fetchFoods = async function () {
-        fetch("/api/foods", { method: "get" }).then((res) => res.ok && res.json()).then(
+        await fetch("/api/foods?" + createQueryString('limit', limit), { method: "get" }).then((res) => res.ok && res.json()).then(
             foods => {
                 foods && setFoods(foods);
         });
     };
 
     const fetchFavorites = async function () {
-        fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
+        await fetch("/api/favorite", { method: "get" }).then((res) => res.ok && res.json()).then(
             favorites => {
                 favorites && setFavorites(favorites);
         });
@@ -93,8 +117,8 @@ export default function findFoods() {
             navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
           }
     }
-    function favoriteFood(food){
-        fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})}).then((res) => {
+    async function favoriteFood(food){
+        await fetch("/api/favorite", {method: 'put', body: JSON.stringify({food})}).then((res) => {
             if(res.ok) {
                 fetchFoods();
                 setFavorites([...favorites, food])
@@ -102,8 +126,8 @@ export default function findFoods() {
         });
     }
 
-    function unfavoriteFood(food){
-        fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})}).then((res) => {
+    async function unfavoriteFood(food){
+        await fetch("/api/favorite/", {method: 'PATCH', body: JSON.stringify({food})}).then((res) => {
             if(res.ok) {
                 setFoods([...foods, food])
                 fetchFavorites()
@@ -125,21 +149,53 @@ export default function findFoods() {
       }
     
 
-    function searchFood() {
+    async function searchFood() {
         const searchString = createQueryString('search', searchInput)
-        fetch("/api/foods" + '?' + searchString, { method: "get" }).then((res) => res.ok && res.json()).then(
+        await fetch("/api/foods" + '?' + searchString + '&' + createQueryString('limit', limit) , { method: "get" }).then((res) => res.ok && res.json()).then(
             foods => {
                 foods && setFoods(foods);
         })
     };
 
+    function sortPriceAsc() {
+        foods.sort((foodA, foodB) => foodA.priceRange - foodB.priceRange)
+        setFoods([...foods])
+    };
+
+    function sortPriceDesc() {
+        foods.sort((foodA, foodB) => foodB.priceRange - foodA.priceRange)
+        setFoods([...foods])
+    };
+
+    function sortTimeAsc() {
+        const freeTime = scheduleFilter(schedule);
+        console.log(freeTime);
+        foods.filter(food => {
+            return freeTime <= food.cookTime
+        })
+        foods.sort((foodA, foodB) => foodA.cookTime - foodB.cookTime)
+        setFoods([...foods])
+    };
+
+    function sortTimeDesc() {
+        foods.sort((foodA, foodB) => foodB.cookTime - foodA.cookTime)
+        setFoods([...foods])
+    };
+
+    function sortDistanceAsc() {
+        foods.sort((foodA, foodB) => foodA.distance - foodB.distance)
+        setFoods([...foods])
+    };
+
+    function sortDistanceDesc() {
+        foods.sort((foodA, foodB) => foodB.distance - foodA.distance)
+        setFoods([...foods])
+    };
+
+
     function goToFood(food){
         if (food.type == "recipe") {    
             router.push(`/recipes/${food.id}`)
-        }
-        else if (foods.length == 0)
-        {
-            setFoods(globalFoods);
         }
         else{
             router.push(`/restaurants/${food.id}`)
@@ -180,26 +236,32 @@ export default function findFoods() {
         return deg * (Math.PI/180);
       }
       
-      function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
-        const earthRadius = 3958.8; // Radius of the Earth in miles
-        const dLat = deg2rad(lat2 - lat1);
-        const dLon = deg2rad(lon2 - lon1);
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = earthRadius * c; // Distance in miles
-        return distance;
-      }
+    function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
+    const earthRadius = 3958.8; // Radius of the Earth in miles
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = earthRadius * c; // Distance in miles
+    return distance;
+    }
+
 
     const foodList = IsLoading ? loadingItems: foods.map((food) => {
         if (food.type == "restaurant"){
             const restaurantLongitudeAndLatitude = food.location.split(',')
             var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
+            var time = (distance / 18.6) * 60
+            food.cookTime = time
+            food.distance = distance
         }
         else{
-            var distance = null;
+            var distance = 0
+            var time = food.cookTime
+            food.distance = 0
         }
         if (status == 'authenticated'){
             return <ListItem
@@ -208,8 +270,9 @@ export default function findFoods() {
             }>  
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
-                    <ListItemText primary={food.priceRange}/>
+                    <ListItemText primary={'$'.repeat(food.priceRange)}/>
                     <ListItemText primary={distance}/>
+                    <ListItemText primary={Number(30 + time).toFixed(2)}/>
                 </ListItemButton>
             </ListItem>;
         }
@@ -217,20 +280,64 @@ export default function findFoods() {
             return <ListItem>
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
-                    <ListItemText primary={food.priceRange}/>
+                    <ListItemText primary={'$'.repeat(food.priceRange)}/>
                     <ListItemText primary={distance}/>
+                    <ListItemText primary={Number(30 + time).toFixed(2)}/>
                 </ListItemButton>
             </ListItem>;
         }
     });
+
+    function scheduleFilter(schedule) {
+        const currentdate = new Date();
+        //Filter out all days of schedule until relevant day
+        const tempSche = schedule.filter(busyblock => {
+            const date1 = new Date(busyblock.startTime);
+            return (date1.getMonth() === currentdate.getMonth() && date1.getDate() === currentdate.getDate() && date1.getFullYear() === currentdate.getFullYear()); 
+    })
+
+        tempSche.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        console.log(tempSche);
+
+        //Loop until you get to next available busyblock
+        let busyIndex = 0;
+        while (busyIndex < tempSche.length)
+        {
+            const blockStartTime = new Date(tempSche[busyIndex].startTime);
+            if (blockStartTime > currentdate)
+            {
+                break;
+            }
+            busyIndex++;
+        }
+
+        //Get the amount of time till next busyblock
+        if (busyIndex == tempSche.length)
+        {
+            const endDay = new Date(new Date().setHours(23, 59, 59, 999));
+            return (endDay - currentdate) / 60000;
+        }
+        else 
+        {
+            const nextBusyTime = new Date(tempSche[busyIndex].startTime);
+            return (nextBusyTime - currentdate) / 60000;
+        }
+
+
+    };
     
     const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
         if (food.type == "restaurant"){
             const restaurantLongitudeAndLatitude = food.location.split(',')
             var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
+            var time = (distance / 18.6) * 60
+            food.cookTime = time
+            food.distance = distance
         }
         else{
-            var distance = null;
+            var distance = 0
+            var time = food.cookTime
+            food.distance = 0
         }
         if (status == 'authenticated'){
             return( 
@@ -240,31 +347,48 @@ export default function findFoods() {
             }>
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={food.name}/>
-                    <ListItemText primary={food.priceRange}/>
+                    <ListItemText primary={'$'.repeat(food.priceRange)}/>
                     <ListItemText primary={distance}/>
+                    <ListItemText primary={Number(30 + time).toFixed(2)}/>
                 </ListItemButton>
             </ListItem>);
         }
     });   
 
+    function displayBudget(){
+        if (!IsLoading){
+            return(
+                <p>Daily Budget: {dailyBudget} </p>
+            )
+        }
+        else{
+            return(loadingItems)
+        }
+    }
    // 35.29563278166948, -120.67837015960859
    // 35.26289912945568, -120.6774243085059 : MCdonalds
    // 35.293915501012656, -120.6722660632114 : Panda Express
 
     return (
         <div>
-        <p>
-        Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>
+        {status == "authenticated" && displayBudget()}
+        {IsLoading ? loadingItems: <p>Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>}
         <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged}/> 
         <button onClick={searchFood}>Search</button>
         <button onClick={resetSearch}>Reset Search</button>
+        <button onClick={sortPriceAsc}>Sort by Price Ascending</button>
+        <button onClick={sortPriceDesc}>Sort by Price Descending</button>
+        <button onClick={sortTimeAsc}>Sort by Time Ascending</button>
+        <button onClick={sortTimeDesc}>Sort by Time Descending</button> 
+        <button onClick={sortDistanceAsc}>Sort by Distance Ascending</button>
+        <button onClick={sortDistanceDesc}>Sort by Distance Descending</button>
         <TextField label="Latitude" fullWidth variant="outlined" value={customLat} onChange={updateCustomLat}/>
         <TextField label="Longitude" fullWidth variant="outlined" value={customLng} onChange={updateCustomLng}/>
         <button onClick={updateLocation}>Use Location</button>
         {status == "authenticated" && <button onClick={useAccountLocation}>Get Account Location</button>}
             <List sx={{ width: '100%', maxWidth: 1500 }}>
                 {status == "authenticated" && <h1>Favorite List</h1>}
-                { favoriteList }
+                {status == "authenticated" && favoriteList }
                 <h1>Meals</h1>
                 { foodList }
                 {!(IsLoading) && <ListItem key="food">

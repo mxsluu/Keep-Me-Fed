@@ -9,7 +9,7 @@ const recipes = [
             "5. Serve Hot"
         ],
         cookTime: 15,
-        priceRange: '$',
+        priceRange: 1,
         genre: 'Breakfast',
         photo: '/recipe/scrambledeggs.png',
         source: 'https://www.foodnetwork.com/recipes/food-network-kitchen/simple-scrambled-eggs-3363098',
@@ -26,7 +26,7 @@ const recipes = [
             "6. Serve hot."
         ],
         cookTime: 10,
-        priceRange: '$',
+        priceRange: 1,
         genre: 'Asian',
         photo: '/recipe/rice.png',
         source: 'Experience',
@@ -47,7 +47,7 @@ const recipes = [
             "10. Mix rice and eggs in a bowl and enjoy while hot."
         ],
         cookTime: 10,
-        priceRange: '$',
+        priceRange: 2,
         genre: 'Asian',
         photo: '/recipe/eggswithrice.png',
         source: 'Experience',
@@ -62,7 +62,7 @@ const recipes = [
             "4. Serve the sauce and meatballs over the spaghetti. Sprinkle with the cheese, if desired."
         ],
         cookTime: 35,
-        priceRange: '$$',
+        priceRange: 2,
         genre: 'Italian',
         photo: '/recipe/spaghetti&meatballs.png',
         source: 'https://www.campbells.com/prego/recipes/quick-spaghetti-meatballs/',

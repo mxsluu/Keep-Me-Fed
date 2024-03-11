@@ -7,10 +7,15 @@ import Image from 'next/image'
 import { redirect } from 'next/navigation';
 
 
+
 export default function Recipe({ params }){
     const [recipe, setRecipe] = useState([]);
     const [ingredients, setIngredients] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [eaten, setEaten] = useState(false)
+    const [costInput, setCostInput] = useState('')
+    const [successOutput, setSuccessOutput] = useState('')
+    const [success, setSuccess] = useState(false)
     const { data: session, status }  = useSession();
     const loadingItems = <CircularProgress/>;
 
@@ -23,12 +28,35 @@ export default function Recipe({ params }){
         });
     };
 
-    
+
+    function recordRecipe(){
+        setEaten(true)
+        return 0;
+    }
     
     useEffect(() => {
         fetchRecipe();
     }, []);
 
+    function updateCostInput(event){
+        setCostInput(event.target.value);
+    }
+
+    function adjustBudget(){
+        if (0 <= parseFloat(costInput) && (!success)){
+            setCostInput(Number(costInput).toFixed(2));
+            setSuccessOutput('Budget Changed')
+            setSuccess(true)
+            fetch(`/api/adjustBudget/${session.user.id}}`, {method: 'put', body: JSON.stringify({cost: costInput})}).then((response) => response.ok && response.json())
+        }
+        else if (parseFloat(costInput) <= 0){
+            setSuccessOutput('Cost cannot be negative')
+
+        }
+        else{
+            setSuccessOutput('Error in changing budget or budget change already recorded')  
+        }
+    }
 
     const ingredientsList = loading ? loadingItems: ingredients.map((ingredient) => {
             return(
@@ -55,13 +83,19 @@ export default function Recipe({ params }){
     else{
         if (status == "authenticated"){
             return(
-                <div>
+                <div>   
                 <Link href="./../findfood">Back</Link>
                 <br></br>
                 <div><h1>{recipe.name}</h1></div>
                 <div><h3>{recipe.genre}</h3></div>
                 <div><h3>{recipe.cookTime} minutes to prepare and cook</h3></div>
                 <div><h3>{recipe.priceRange}</h3></div>
+                <text>Did you make and eat this?</text>
+                <button onClick={recordRecipe}>Yes</button>
+                {eaten && <p>How much did you spend on ingredients?</p>}
+                {eaten && <input type='number' step='0.01' value={costInput} onChange={updateCostInput}/>}
+                {eaten && <button onClick={adjustBudget}>Adjust Budget</button>}
+                {eaten && successOutput}
                 <div><h3> Ingredients </h3></div>
                 <div>{ ingredientsList }</div>
                 <div><h3> Instructions </h3></div>

@@ -1,7 +1,7 @@
 const ingredients = [
     {
         name: 'Eggs',
-        price: 5,
+        price: 4,
         locationName: "Ralph's",
         location: '201 Madonna Rd, San Luis Obispo, CA 93405'
     },
@@ -13,15 +13,15 @@ const ingredients = [
     },
     {
         name: 'Salt',
-        price: 2,
-        locationName: "Ralph's",
-        location: '201 Madonna Rd, San Luis Obispo, CA 93405'
+        price: 1,
+        locationName: "Walmart",
+        location: '1168 W Branch St, Arroyo Grande, CA 93420'
     },
     {
         name: 'Black Pepper',
-        price: 2,
-        locationName: "Ralph's",
-        location: '201 Madonna Rd, San Luis Obispo, CA 93405'
+        price: 1,
+        locationName: "Walmart",
+        location: '1168 W Branch St, Arroyo Grande, CA 93420'
     },
     {
         name: 'White Rice',

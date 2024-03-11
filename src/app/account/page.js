@@ -131,7 +131,7 @@ export default function Home() {
     fetchLocation();
     setLocationInput(locallatitude.toString() + ',' + locallongitude.toString())
   }
-
+  if (status == "authenticated"){
     return (
       <>
         <h1>Account Page</h1>
@@ -148,7 +148,7 @@ export default function Home() {
           <button onClick={updateBudget}>Enter</button>
         </div>
         {/* Display the entered budget on the screen only if the button is clicked */}
-        {<p>Weekly Budget: ${budget}</p>}
+        {<p>Weekly Budget: ${Number(budget).toFixed(2)}</p>}
         <div>
           {/* Display label and input field for entering location */}
           <label>Enter Location: </label>
@@ -158,7 +158,7 @@ export default function Home() {
           <button onClick={updateLocation}>Update Location</button>
           <button onClick={useCurrentLocation}>Get Current Location</button>
         </div>
-        {/* Display the entered budget on the screen only if the button is clicked */}
+        {/* Display the entered location on the screen only if the button is clicked */}
         {location.length && <p>Location: {location}</p> || <p>Location: No Location Entered</p>}
         <div style={{height:500}}>
           <h2>Calendar</h2>
@@ -180,4 +180,8 @@ export default function Home() {
         </ul>
       </>
     );
+  }
+  else{
+    router.push('/')
+  }
 }
