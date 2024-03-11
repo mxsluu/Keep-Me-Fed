@@ -400,7 +400,6 @@ export default function findFoods() {
             {
                 const blockStartTime = new Date(tempSche[busyIndex].startTime);
                 const blockEndTime = new Date(tempSche[busyIndex].endTime);
-                console.log(blockStartTime)
                 if (currentdate >= blockStartTime && currentdate <= blockEndTime){
                     return 0;
                 }
