@@ -362,21 +362,16 @@ export default function findFoods() {
         }
     }
 
-    // Helper function for displaying free time
+    // Helper function for displaying free time in hours and minutes
     function displayFreeTime(){
         if (!IsLoading){
             const freeTime = calculateFreeTime(schedule)
-            if (freeTime != Infinity){
-                return(
-                    <p>Free Time: {calculateFreeTime(schedule)} minutes </p>
-                )
+            const hours = Math.floor(freeTime/60)
+            const minutes = Number(freeTime % 60).toFixed(0)
+            return(
+                <p>Free Time: {hours} hours {minutes} minutes </p>
+            )
             }
-            else{
-                return(
-                    <p>Free Time: All the time in the world!</p>
-                )
-            }
-        }
         else{
             return(loadingItems)
         }
@@ -384,46 +379,41 @@ export default function findFoods() {
 
     // Returns the free time of a user
     function calculateFreeTime(schedule) {
-        if (schedule.length != 0){
-            const currentdate = new Date();
-            //Filter out all days of schedule until relevant day
-            const tempSche = schedule.filter(busyblock => {
-                const date1 = new Date(busyblock.startTime);
-                return (date1.getMonth() === currentdate.getMonth() && date1.getDate() === currentdate.getDate() && date1.getFullYear() === currentdate.getFullYear()); 
-        })
-        
-            tempSche.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-        
-            //Loop until you get to next available busyblock
-            let busyIndex = 0;
-            while (busyIndex < tempSche.length)
-            {
-                const blockStartTime = new Date(tempSche[busyIndex].startTime);
-                const blockEndTime = new Date(tempSche[busyIndex].endTime);
-                if (currentdate >= blockStartTime && currentdate <= blockEndTime){
-                    return 0;
-                }
-                if (blockStartTime > currentdate)
-                {
-                    break;
-                }
-                busyIndex++;
+        const currentdate = new Date();
+        //Filter out all days of schedule until relevant day
+        const tempSche = schedule.filter(busyblock => {
+            const date1 = new Date(busyblock.startTime);
+            return (date1.getMonth() === currentdate.getMonth() && date1.getDate() === currentdate.getDate() && date1.getFullYear() === currentdate.getFullYear()); 
+    })
+    
+        tempSche.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+        //Loop until you get to next available busyblock
+        let busyIndex = 0;
+        while (busyIndex < tempSche.length)
+        {
+            const blockStartTime = new Date(tempSche[busyIndex].startTime);
+            const blockEndTime = new Date(tempSche[busyIndex].endTime);
+            if (currentdate >= blockStartTime && currentdate <= blockEndTime){
+                return 0;
             }
-        
-            //Get the amount of time till next busyblock
-            if (busyIndex == tempSche.length)
+            if (blockStartTime > currentdate)
             {
-                const endDay = new Date(new Date().setHours(23, 59, 59, 999));
-                return (endDay - currentdate) / 60000;
+                break;
             }
-            else 
-            {
-                const nextBusyTime = new Date(tempSche[busyIndex].startTime);
-                return Number((nextBusyTime - currentdate) / 60000).toFixed(2);
-            }
+            busyIndex++;
         }
-        else{
-            return Infinity
+    
+        //Get the amount of time till next busyblock
+        if (busyIndex == tempSche.length)
+        {
+            const endDay = new Date(new Date().setHours(23, 59, 59, 999));
+            return (endDay - currentdate) / 60000;
+        }
+        else 
+        {
+            const nextBusyTime = new Date(tempSche[busyIndex].startTime);
+            return Number((nextBusyTime - currentdate) / 60000).toFixed(2);
         }
       };
 
