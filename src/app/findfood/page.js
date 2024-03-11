@@ -23,7 +23,6 @@ import Select from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import DatePicker from 'react-datepicker';
 
 
 import './styles.css';
@@ -46,23 +45,28 @@ export default function findFoods() {
     const [user, setUser] = useState(null);
     const [dailyBudget, setDailyBudget] = useState(0);
     const [budgetFilter, setBudgetFilter] = useState(true)
+    const [timeFilter, setTimeFilter] = useState(true)
     const [sortOption, setSortOption] = useState('')
     const [sortQuery, setSortQuery] = useState({sortType: null, sortOrder: null}) 
     const [showFilters, setShowFilters] = useState(false);
     const [filters, setFilters] = useState(false);
     const [schedule, setSchedule] = useState([]);
     
-    
+   // Initial visit to site will call initialFetch and will not run on subsequent rerenders 
     useEffect(() => {
         initialFetch()
     }, []);
 
+    // Only update food list if filters, favorites or location changes
+    // Also update food if reset search button is clicked
     useEffect(() => {
         if (locallatitude != null && locallongitude != null){
             updateFoods()
         }
     }, [filters, favorites, locallatitude, locallongitude, resetSearchButton]);
 
+    // Only fetch favorites (to recalculate distances) if location changes
+    // Observe user changes in order to fetchfavorites only if favorite list is loaded
     useEffect(() => {
         if (locallatitude != null && locallongitude != null && user != null){
             fetchFavorites();
@@ -70,33 +74,38 @@ export default function findFoods() {
     }, [locallatitude, locallongitude, user]);
     
     
-
+    // Initial FETCH
     const initialFetch = async function() {
         fetchLocation()
         const userResponse = await fetch("/api/users", { method: "get" })
         if (userResponse.ok){
             const user = await userResponse.json();
+            // Get and set user as well as daily budget and schedule
             setUser(user);
             const daily = Number(user.budget / 7).toFixed(2)
             setDailyBudget(daily)
             setSchedule(user.busyblocks)
         }
         else{
+            // If not a user then just update foods
             updateFoods();
         }
     }
     
+    // Function that will make a GET request to foods API with search params
     const fetchFoods = function () {
         const searchString = createQueryString('search', searchInput)
         const budgetFilterString = createQueryString('budgetFilter', budgetFilter)
+        const timeFilterString = createQueryString('timeFilter', timeFilter)
         const longitude = createQueryString('longitude', locallongitude)
         const latitude = createQueryString('latitude', locallatitude)
         const sortType = createQueryString('sortType', sortQuery.sortType)
         const sortOrder = createQueryString('sortOrder', sortQuery.sortOrder)
-        return fetch("/api/foods?" + "&" + searchString + "&" + budgetFilterString + "&" + longitude + "&" + latitude
+        return fetch("/api/foods?" + "&" + searchString + "&" + budgetFilterString + "&" + timeFilterString + "&" + longitude + "&" + latitude
                 + "&" + sortType + "&" + sortOrder, { method: "get" })
     }
 
+    // Async function that updates the list of foods and set loading to false
     async function updateFoods() {
         const foodsResponse = await fetchFoods()
         if (foodsResponse.ok){
@@ -106,6 +115,8 @@ export default function findFoods() {
         }
     };
 
+    // Function that will make a GET request to favorites API with search param of user location (calculates distances for favorites)
+    // Updates the list of favorites
     const fetchFavorites = function () {
         const longitude = createQueryString('longitude', locallongitude)
         const latitude = createQueryString('latitude', locallatitude)
@@ -116,6 +127,7 @@ export default function findFoods() {
     };
 
 
+    // Function to get current location
     const fetchLocation = function() {
         const successHandler = (position) => {
             setLocalLatitude(position.coords.latitude);
@@ -132,6 +144,9 @@ export default function findFoods() {
             navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
           }
     }
+
+    // Async function that makes a PUT request to favorites API that updates the list of favorites tied to user
+    // Updates the list of favorites
     async function favoriteFood(food){
         const favoriteReponse = await fetch("/api/favorite", {method: 'put', body: JSON.stringify({food, option: "favorite"})})
         if (favoriteReponse.ok){
@@ -139,6 +154,8 @@ export default function findFoods() {
         }
     }
 
+    // Async function that makes a PUT request to favorites API that updates the list of favorites tied to user
+    // Updates the list of favorites
     async function unFavoriteFood(food){
         const unFavoriteReponse = await fetch("/api/favorite/", {method: 'put', body: JSON.stringify({food, option: "unfavorite"})})
         if (unFavoriteReponse.ok){
@@ -146,14 +163,17 @@ export default function findFoods() {
         }
     }
 
+    // Handler for favorite button
     function favoriteFoodHandler(food) {
         favoriteFood(food);
     };
 
+    // Handler for unfavorite button
     function unFavoriteFoodHandler(food) {
         unFavoriteFood(food);
     };
 
+    // Helper function for creating search params strings
     const createQueryString = useCallback(
         (name, value) => {
           const params = new URLSearchParams(searchParams)
@@ -163,14 +183,17 @@ export default function findFoods() {
         [searchParams]
       )
 
+    // Observe changes in search text box and update search value
     function searchChanged(event){
         setSearchInput(event.target.value);
       }
     
+    // Update food list of search food button is clicked
     function searchFoodHandler() {
         updateFoods();
     };
 
+    // When a sort selection is made, set the search params values for fetching foods
     function sortHandler(event){
         setSortOption(event.target.value)
         switch (event.target.value){
@@ -195,61 +218,22 @@ export default function findFoods() {
         }
     }
 
+    // If budget filter is clicked, then handle event
     const toggleBudgetFilter = (event) => {
         setBudgetFilter(event.target.checked)
     };
 
+    // If time filter is clicked, then handle event
+    const toggleTimeFilter = (event) => {
+        setTimeFilter(event.target.checked)
+    };
+
+    // Master handler for all filters (will rerender the page if this is set)
     const filterHandler = () => {
         setFilters(!filters)
     }
-/*
-    function sortTimeAsc() {
-        const freeTime = scheduleFilter(schedule);
-        console.log(freeTime);
-        foods.filter(food => {
-            return freeTime <= food.cookTime
-        })
-        foods.sort((foodA, foodB) => foodA.cookTime - foodB.cookTime)
-        setFoods([...foods])
-    };
 
-
-function scheduleFilter(schedule) {
-    const currentdate = new Date();
-    //Filter out all days of schedule until relevant day
-    const tempSche = schedule.filter(busyblock => {
-        const date1 = new Date(busyblock.startTime);
-        return (date1.getMonth() === currentdate.getMonth() && date1.getDate() === currentdate.getDate() && date1.getFullYear() === currentdate.getFullYear()); 
-})
-
-    tempSche.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-    console.log(tempSche);
-
-    //Loop until you get to next available busyblock
-    let busyIndex = 0;
-    while (busyIndex < tempSche.length)
-    {
-        const blockStartTime = new Date(tempSche[busyIndex].startTime);
-        if (blockStartTime > currentdate)
-        {
-            break;
-        }
-        busyIndex++;
-    }
-
-    //Get the amount of time till next busyblock
-    if (busyIndex == tempSche.length)
-    {
-        const endDay = new Date(new Date().setHours(23, 59, 59, 999));
-        return (endDay - currentdate) / 60000;
-    }
-    else 
-    {
-        const nextBusyTime = new Date(tempSche[busyIndex].startTime);
-        return (nextBusyTime - currentdate) / 60000;
-    }
-};
-*/
+    // Handler for when a food is clicked (redirects to unique page for restaurants and recipes)
     function goToFood(food){
         if (food.type == "recipe") {    
             router.push(`/recipes/${food.id}`)
@@ -259,6 +243,7 @@ function scheduleFilter(schedule) {
         }
     }
 
+    // Handler for when a reset search button is clicked
     function resetSearchHandler(){
         setResetSearchButton(!resetSearchButton)
         setSearchInput('')
@@ -266,6 +251,7 @@ function scheduleFilter(schedule) {
         setSortQuery({sortType: null, sortOrder: null})
     }
 
+    // Updaters for coordinates and location
     function updateCustomLat(event){
         setCustomLat(event.target.value);
     }
@@ -284,6 +270,7 @@ function scheduleFilter(schedule) {
         }
     };
 
+    // Handler for click on "Use Account Location" button
     function useAccountLocation(){
         if (user.location != ''){
             const locationSplit = user.location.split(",")
@@ -292,8 +279,10 @@ function scheduleFilter(schedule) {
         }
     }
 
+    // Generates the food list 
     const foodList = () => {
         return foods.map((food) => {
+        // If user, then display favorite button
         if (status == 'authenticated'){         
             return (
             <ListItem>  
@@ -337,6 +326,7 @@ function scheduleFilter(schedule) {
 
     const favoriteList = () => {
         return favorites.map((food) => {
+            // If user, then display unfavorite button
             if (status == 'authenticated'){
                 return (
                 <ListItem>
@@ -360,19 +350,83 @@ function scheduleFilter(schedule) {
         });
     }   
 
+    // Helper function for displaying budget
     function displayBudget(){
         if (!IsLoading){
             return(
-                <p>Daily Budget: {dailyBudget} </p>
+                <p>Daily Budget: ${dailyBudget} </p>
             )
         }
         else{
             return(loadingItems)
         }
     }
-   // 35.29563278166948, -120.67837015960859
-   // 35.26289912945568, -120.6774243085059 : MCdonalds
-   // 35.293915501012656, -120.6722660632114 : Panda Express
+
+    // Helper function for displaying free time
+    function displayFreeTime(){
+        if (!IsLoading){
+            const freeTime = calculateFreeTime(schedule)
+            if (freeTime != Infinity){
+                return(
+                    <p>Free Time: {calculateFreeTime(schedule)} minutes </p>
+                )
+            }
+            else{
+                return(
+                    <p>Free Time: All the time in the world!</p>
+                )
+            }
+        }
+        else{
+            return(loadingItems)
+        }
+    }
+
+    // Returns the free time of a user
+    function calculateFreeTime(schedule) {
+        if (schedule.length != 0){
+            const currentdate = new Date();
+            //Filter out all days of schedule until relevant day
+            const tempSche = schedule.filter(busyblock => {
+                const date1 = new Date(busyblock.startTime);
+                return (date1.getMonth() === currentdate.getMonth() && date1.getDate() === currentdate.getDate() && date1.getFullYear() === currentdate.getFullYear()); 
+        })
+        
+            tempSche.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        
+            //Loop until you get to next available busyblock
+            let busyIndex = 0;
+            while (busyIndex < tempSche.length)
+            {
+                const blockStartTime = new Date(tempSche[busyIndex].startTime);
+                const blockEndTime = new Date(tempSche[busyIndex].endTime);
+                console.log(blockStartTime)
+                if (currentdate >= blockStartTime && currentdate <= blockEndTime){
+                    return 0;
+                }
+                if (blockStartTime > currentdate)
+                {
+                    break;
+                }
+                busyIndex++;
+            }
+        
+            //Get the amount of time till next busyblock
+            if (busyIndex == tempSche.length)
+            {
+                const endDay = new Date(new Date().setHours(23, 59, 59, 999));
+                return (endDay - currentdate) / 60000;
+            }
+            else 
+            {
+                const nextBusyTime = new Date(tempSche[busyIndex].startTime);
+                return Number((nextBusyTime - currentdate) / 60000).toFixed(2);
+            }
+        }
+        else{
+            return Infinity
+        }
+      };
 
     return (
         <div className="food">
@@ -417,6 +471,20 @@ function scheduleFilter(schedule) {
                         }
                     </ListItem>
                     <ListItem>
+                        {status == "authenticated" &&
+                        <FormGroup>
+                            <FormControlLabel 
+                                control={<Switch
+                                        checked={timeFilter}
+                                        onChange={toggleTimeFilter}
+                                        inputProps={{ 'aria-label': 'controlled' }}
+                                />}
+                                label="Time Filter"
+                            />
+                        </FormGroup>
+                        }
+                    </ListItem>
+                    <ListItem>
                         <Button variant="contained" style={{ backgroundColor: '#7F8E76',display: 'flex', justifyContent: 'center' , marginLeft:'35px'}} onClick={filterHandler}>Apply Filters</Button>
                     </ListItem>
                 </List>
@@ -424,6 +492,7 @@ function scheduleFilter(schedule) {
         <Button onClick={resetSearchHandler} style={{ color: '#7F8E76' }}>Reset Search</Button>
 
         {status == "authenticated" && displayBudget()}
+        {status == "authenticated" && displayFreeTime()}
         {IsLoading ? loadingItems : <p>Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>}
         <List sx={{ width: '50%', maxWidth: 1500 }}>
             {IsLoading ? loadingItems : status == "authenticated" && <h2>Favorites</h2>}
