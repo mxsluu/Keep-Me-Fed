@@ -23,6 +23,7 @@ import Select from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import DatePicker from 'react-datepicker';
 
 
 import './styles.css';
@@ -49,7 +50,9 @@ export default function findFoods() {
     const [sortQuery, setSortQuery] = useState({sortType: null, sortOrder: null}) 
     const [showFilters, setShowFilters] = useState(false);
     const [filters, setFilters] = useState(false);
-
+    const [schedule, setSchedule] = useState([]);
+    
+    
     useEffect(() => {
         initialFetch()
     }, []);
@@ -76,6 +79,7 @@ export default function findFoods() {
             setUser(user);
             const daily = Number(user.budget / 7).toFixed(2)
             setDailyBudget(daily)
+            setSchedule(user.busyblocks)
         }
         else{
             updateFoods();
@@ -198,7 +202,54 @@ export default function findFoods() {
     const filterHandler = () => {
         setFilters(!filters)
     }
+/*
+    function sortTimeAsc() {
+        const freeTime = scheduleFilter(schedule);
+        console.log(freeTime);
+        foods.filter(food => {
+            return freeTime <= food.cookTime
+        })
+        foods.sort((foodA, foodB) => foodA.cookTime - foodB.cookTime)
+        setFoods([...foods])
+    };
 
+
+function scheduleFilter(schedule) {
+    const currentdate = new Date();
+    //Filter out all days of schedule until relevant day
+    const tempSche = schedule.filter(busyblock => {
+        const date1 = new Date(busyblock.startTime);
+        return (date1.getMonth() === currentdate.getMonth() && date1.getDate() === currentdate.getDate() && date1.getFullYear() === currentdate.getFullYear()); 
+})
+
+    tempSche.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    console.log(tempSche);
+
+    //Loop until you get to next available busyblock
+    let busyIndex = 0;
+    while (busyIndex < tempSche.length)
+    {
+        const blockStartTime = new Date(tempSche[busyIndex].startTime);
+        if (blockStartTime > currentdate)
+        {
+            break;
+        }
+        busyIndex++;
+    }
+
+    //Get the amount of time till next busyblock
+    if (busyIndex == tempSche.length)
+    {
+        const endDay = new Date(new Date().setHours(23, 59, 59, 999));
+        return (endDay - currentdate) / 60000;
+    }
+    else 
+    {
+        const nextBusyTime = new Date(tempSche[busyIndex].startTime);
+        return (nextBusyTime - currentdate) / 60000;
+    }
+};
+*/
     function goToFood(food){
         if (food.type == "recipe") {    
             router.push(`/recipes/${food.id}`)
