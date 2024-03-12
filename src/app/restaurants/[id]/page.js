@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Link from 'next/link';
 import Image from 'next/image'
+import './styles.css';
 
 
 export default function Restaurant({ params }){
@@ -60,13 +61,20 @@ export default function Restaurant({ params }){
     else{
         if (status == "authenticated"){
             return(
-            <div>
-                <Link href="./../findfood">Back</Link>
+            <div className='restaurant-details'>
+                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Back</Link>
                 <br></br>
+                <div className='res-details'>
+                <Image
+                    src= {restaurant.photo}
+                    width={600}
+                    height={600}
+                />
+                <div className='details'>
                 <div><h1>{restaurant.name}</h1></div>
                 <div><h3>{restaurant.genre}</h3></div>
-                <div><h3>{restaurant.location}</h3></div>
-                <div><h3>{restaurant.priceRange}</h3></div>
+                <div><h3>Coordinates: {restaurant.location}</h3></div>
+                <div><h3>Price Range: {restaurant.priceRange}</h3></div>
                 <text>Did you eat at this restaurant?</text>
                 <button onClick={recordRestaurant}>Yes</button>
                 {eaten && <p>How much did you spend at this restaurant?</p>}
@@ -74,32 +82,60 @@ export default function Restaurant({ params }){
                 {eaten && <button onClick={adjustBudget}>Adjust Budget</button>}
                 {eaten && successOutput}
                 <br></br>
-                <Link href={restaurant.websiteLink}>Vist their Website!</Link>
+                <Link href={restaurant.websiteLink}
+                style={{ 
+                    display: 'block',
+                    textAlign: 'center',
+                    textDecoration: 'none', 
+                    border: 'none',
+                    backgroundColor: 'white',
+                    padding: '5px 20px', 
+                    borderRadius: '5px', 
+                    color: 'black',
+                    marginTop:'20px',
+                    width: 'fit-content',
+                    boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)'
+                }}>Vist their Website!</Link>
                 <br></br>
-                <Image
-                    src= {restaurant.photo}
-                    width={350}
-                    height={350}
-                />
+                </div>
+                </div>
             </div>
             )
         }
         else{
             return(
-                <div>
-                <Link href="./../findfood">Back</Link>
+                <div className='restaurant-details'>
+                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Back</Link>
                 <br></br>
-                <div><h1>{restaurant.name}</h1></div>
-                <div><h3>{restaurant.genre}</h3></div>
-                <div><h3>{restaurant.location}</h3></div>
-                <div><h3>{restaurant.priceRange}</h3></div>
-                <Link href={restaurant.websiteLink}>Vist their Website!</Link>
-                <br></br>
+                <div className='restaurant-details'>
                 <Image
                     src= {restaurant.photo}
-                    width={350}
-                    height={350}
+                    width={600}
+                    height={600}
                 />
+                 <div className='details'>
+                <div><h1>{restaurant.name}</h1></div>
+                <div><h3>{restaurant.genre}</h3></div>
+                <div><h3>Coordinates: {restaurant.location}</h3></div>
+                <div><h3>Price Range: {restaurant.priceRange}</h3></div>
+                <Link href={restaurant.websiteLink}
+                style={{ 
+                    display: 'block',
+                    textAlign: 'center',
+                    textDecoration: 'none', 
+                    border: 'none',
+                    backgroundColor: 'white',
+                    padding: '5px 20px', 
+                    borderRadius: '5px', 
+                    color: 'black',
+                    marginTop:'20px',
+                    width: 'fit-content',
+                    boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)'
+                }}>Vist their Website!</Link>
+                <br></br>
+                </div>
+                </div>
+                
             </div>
             )
         }

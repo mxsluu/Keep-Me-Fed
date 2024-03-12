@@ -51,7 +51,7 @@ export default function Login() {
   
   return (
     <>
-      <Button variant="outlined" color="inherit" onClick={handleLoginButton}>Login</Button>
+      <Button size="small" variant="contained" style={{ color: 'white', backgroundColor: '#96A98B',paddingLeft:'20px',paddingRight:'20px' }} onClick={handleLoginButton}>Login</Button>
       {open && <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Login</DialogTitle>
         <DialogContent>
