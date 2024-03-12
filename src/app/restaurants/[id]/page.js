@@ -107,7 +107,7 @@ export default function Restaurant({ params }){
                 <div className='restaurant-details'>
                 <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Back</Link>
                 <br></br>
-                <div className='restaurant-details'>
+                <div className='res-details'>
                 <Image
                     src= {restaurant.photo}
                     width={600}
