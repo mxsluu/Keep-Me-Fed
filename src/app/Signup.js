@@ -67,7 +67,7 @@ export default function Signup() {
 
   return (
     <>
-      <Button variant="outlined" color="inherit" onClick={handleSignupButton}>Signup</Button>
+      <Button size="small" variant="contained" style={{ color: 'white', backgroundColor: '#96A98B',paddingLeft:'20px',paddingRight:'20px' }} onClick={handleSignupButton}>Signup</Button>
       {open && <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Signup</DialogTitle>
         <form onSubmit={handleSignup}>

@@ -25,7 +25,7 @@ export default function RootLayout({ children, title }) {
   let loginSection;
 
   if (status === 'authenticated') {
-    loginSection = <Button variant="outlined" color="inherit" onClick={() => signOut()}>Sign Out</Button>;
+    loginSection = <Button variant="outlined" color="inherit" onClick={() => signOut({ callbackUrl: "/"})}>Sign Out</Button>;
   } else {
     loginSection = <>
       <Login/>
@@ -37,7 +37,7 @@ export default function RootLayout({ children, title }) {
     <ThemeProvider theme={theme}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar position="static">
+        <AppBar position="static"sx={{ backgroundColor: '#96A98B', minWidth: '1200px'}}>
           <Container maxWidth="xl">
             <Toolbar disableGutters>
               <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />

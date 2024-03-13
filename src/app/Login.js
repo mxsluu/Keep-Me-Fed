@@ -11,6 +11,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Alert from '@mui/material/Alert';
 
 import { signIn } from 'next-auth/react';
+import { Router } from 'next/router';
+import { redirect } from 'next/dist/server/api-utils';
 
 export default function Login() {
 
@@ -33,7 +35,7 @@ export default function Login() {
   }
 
   function handleSignin() {
-    signIn("normal", {...formValues, redirect: false}).then((result) => {
+    signIn("normal", {...formValues, redirect: true, callbackUrl: '/'}).then((result) => {
       if (!result.error) {
         setOpen(false);
         reset();
@@ -49,7 +51,7 @@ export default function Login() {
   
   return (
     <>
-      <Button variant="outlined" color="inherit" onClick={handleLoginButton}>Login</Button>
+      <Button size="small" variant="contained" style={{ color: 'white', backgroundColor: '#96A98B',paddingLeft:'20px',paddingRight:'20px' }} onClick={handleLoginButton}>Login</Button>
       {open && <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Login</DialogTitle>
         <DialogContent>

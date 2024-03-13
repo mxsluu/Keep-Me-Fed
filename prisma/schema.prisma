@@ -13,7 +13,9 @@ datasource db {
 model User {
   id  Int @id @default(autoincrement())
   email String @unique
-  password String 
+  password String
+  budget Float
+  location String 
   toDos ToDo[]
   busyblocks BusyBlock[]
   favoriteRestaurants Restaurant[]
@@ -41,7 +43,7 @@ model Restaurant {
   id Int @id @default(autoincrement())
   name String
   location String
-  priceRange String
+  priceRange Int
   websiteLink String
   genre String
   photo String
@@ -52,7 +54,7 @@ model Restaurant {
 model Ingredient {
   id Int @id @default(autoincrement())
   name String
-  price Int
+  price Float
   locationName String
   location String
   recipes Recipe[]
@@ -63,7 +65,7 @@ model Recipe {
   name String
   instructions String[]
   cookTime Int
-  priceRange String
+  priceRange Int
   genre String
   photo String
   source String
