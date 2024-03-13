@@ -102,7 +102,7 @@ export async function GET(request) {
     sortFoods(sortType, sortOrder, foods)
     // Check if timeFilter is on, if it is then will filter out foods that can be cooked within the free time of the user
     if (timeFilter == "true"){
-      foods = foods.filter((food) =>  food.cookTime <= freeTime)
+      foods = foods.filter((food) =>  food.cookTime + 30 <= freeTime)
     }
     return NextResponse.json(foods)
   }

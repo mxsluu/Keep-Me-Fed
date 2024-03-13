@@ -54,6 +54,23 @@ export default function Restaurant({ params }){
             setSuccessOutput('Error in changing budget or budget change already recorded')  
         }
     }
+    function priceRangeCalculator(priceRange){
+        if (priceRange == 1){
+            return (
+                <div><h3>Price Range: $0 - $10 </h3></div>
+            )
+        }
+        else if (priceRange == 2){
+            return (
+                <div><h3>Price Range: $11 - $20 </h3></div>
+            )
+        }
+        else{         
+            return (
+                    <div><h3>Price Range: $21+ </h3></div>
+            )
+        }
+    }
 
     if (loading){
         return <div> {loadingItems} </div>
@@ -74,7 +91,7 @@ export default function Restaurant({ params }){
                 <div><h1>{restaurant.name}</h1></div>
                 <div><h3>{restaurant.genre}</h3></div>
                 <div><h3>Coordinates: {restaurant.location}</h3></div>
-                <div><h3>Price Range: {restaurant.priceRange}</h3></div>
+                {priceRangeCalculator(restaurant.priceRange)}
                 <text>Did you eat at this restaurant?</text>
                 <button onClick={recordRestaurant}>Yes</button>
                 {eaten && <p>How much did you spend at this restaurant?</p>}
@@ -117,7 +134,7 @@ export default function Restaurant({ params }){
                 <div><h1>{restaurant.name}</h1></div>
                 <div><h3>{restaurant.genre}</h3></div>
                 <div><h3>Coordinates: {restaurant.location}</h3></div>
-                <div><h3>Price Range: {restaurant.priceRange}</h3></div>
+                {priceRangeCalculator(restaurant.priceRange)}
                 <Link href={restaurant.websiteLink}
                 style={{ 
                     display: 'block',
