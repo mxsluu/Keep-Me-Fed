@@ -322,8 +322,6 @@ export default function findFoods() {
             const nextBusyTime = new Date(tempSche[busyIndex].startTime);
             return (nextBusyTime - currentdate) / 60000;
         }
-
-
     };
     
     const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
