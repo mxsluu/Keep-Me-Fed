@@ -16,6 +16,8 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Drawer,   Button ,Box} from '@mui/material';
 import { create } from 'domain';
 import { useSession } from 'next-auth/react';
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import './styles.css';
 
@@ -402,14 +404,42 @@ export default function findFoods() {
             {status == "authenticated" && favoriteList }
         </List>
         <div className="search-bar-container">
-        <TextField label="Search For Food" fullWidth variant="outlined" value={searchInput} onChange={searchChanged} className="search-bar"/> 
-        <button onClick={searchFood} >SEARCH</button>
+        <TextField
+  label="Search For Food"
+  fullWidth
+  variant="outlined"
+  value={searchInput}
+  onChange={searchChanged}
+  className="search-bar"
+  InputProps={{
+    endAdornment: (
+      <InputAdornment position="end">
+        <IconButton onClick={searchFood}>
+          <SearchIcon />
+        </IconButton>
+      </InputAdornment>
+    ),
+  }}
+/>        <button onClick={searchFood} >SEARCH</button>
         </div>
         <div className="search-bar-container">
         <TextField label="Latitude"  variant="outlined" value={customLat} onChange={updateCustomLat} className="search-bar"/>
         <TextField label="Longitude"  variant="outlined" value={customLng} onChange={updateCustomLng} className="search-bar"/>
-        <button onClick={updateLocation}>Use Location</button>
-        {status == "authenticated" && <button onClick={useAccountLocation}>Get Account Location</button>}
+        <Button
+        variant="outlined"
+        onClick={updateLocation}
+        style={{ margin: '8px', padding: '10px 16px', textTransform: 'none' }}
+        >
+        Use Location
+        </Button>
+        <Button
+        variant="contained"
+        color="primary"
+        onClick={useAccountLocation}
+        style={{ margin: '8px', padding: '10px 16px', textTransform: 'none' }}
+        >
+        Get Account Location
+        </Button>
         </div>
             <List sx={{ width: '100%', maxWidth: 2000 }}>
                 <h1>Meals</h1>

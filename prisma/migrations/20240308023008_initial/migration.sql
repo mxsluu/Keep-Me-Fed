@@ -3,6 +3,8 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "budget" DOUBLE PRECISION NOT NULL,
+    "location" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -20,9 +22,8 @@ CREATE TABLE "ToDo" (
 -- CreateTable
 CREATE TABLE "BusyBlock" (
     "id" SERIAL NOT NULL,
-    "day" TEXT NOT NULL,
-    "startTime" TEXT NOT NULL,
-    "endTime" TEXT NOT NULL,
+    "startTime" TIMESTAMP(3) NOT NULL,
+    "endTime" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "BusyBlock_pkey" PRIMARY KEY ("id")
@@ -33,7 +34,7 @@ CREATE TABLE "Restaurant" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "location" TEXT NOT NULL,
-    "priceRange" TEXT NOT NULL,
+    "priceRange" INTEGER NOT NULL,
     "websiteLink" TEXT NOT NULL,
     "genre" TEXT NOT NULL,
     "photo" TEXT NOT NULL,
@@ -45,7 +46,7 @@ CREATE TABLE "Restaurant" (
 CREATE TABLE "Ingredient" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "price" INTEGER NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
     "locationName" TEXT NOT NULL,
     "location" TEXT NOT NULL,
 
@@ -58,7 +59,7 @@ CREATE TABLE "Recipe" (
     "name" TEXT NOT NULL,
     "instructions" TEXT[],
     "cookTime" INTEGER NOT NULL,
-    "priceRange" TEXT NOT NULL,
+    "priceRange" INTEGER NOT NULL,
     "genre" TEXT NOT NULL,
     "photo" TEXT NOT NULL,
     "source" TEXT NOT NULL,
@@ -69,7 +70,7 @@ CREATE TABLE "Recipe" (
 -- CreateTable
 CREATE TABLE "Eaten" (
     "id" SERIAL NOT NULL,
-    "date" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
     "recipieId" INTEGER,
     "restaurantId" INTEGER,
