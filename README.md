@@ -67,5 +67,5 @@ npx prisma studio
 * Attempting to place multiple busyBlocks in the same time slot in the calendar will cause unexpected results.
 * Calendar toolbar is still being developed and not fully functional
 * Attempting to enter strings into budget input can cause unexpected results/issues
-
+* Currently no functionality to delete busy blocks (will need to use prisma studio to delete them).
 
