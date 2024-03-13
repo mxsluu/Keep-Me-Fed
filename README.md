@@ -43,6 +43,7 @@ npx prisma migrate reset
 ```
 Or try seeding the database.
 
+
 ```bash
 npx prisma db seed
 ```
@@ -63,7 +64,8 @@ npx prisma studio
 ```
 ## Known issues/bugs
 * Attempting to enter strings into budget input can cause unexpected results/issues and may not save correctly
-* Attempting to use "," for large budgets may lead to issues (untested/uknown for things like 1,000 or 10,000 but if this is your weekly budget do you really need this app?)
-* User location input has to be in the form lat,long at the moment (anything other form can cause issues)
-* Location input has to be in coordinates for this version
+* Attempting to place multiple busyBlocks in the same time slot in the calendar will cause unexpected results.
+* Calendar toolbar is still being developed and not fully functional
+* Attempting to enter strings into budget input can cause unexpected results/issues
+
 
