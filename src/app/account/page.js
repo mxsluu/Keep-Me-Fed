@@ -31,6 +31,7 @@ export default function Home() {
   const [error, setError] = useState(null);
 
 
+
   useEffect(() => {
     fetchLocation();
     fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
@@ -38,7 +39,6 @@ export default function Home() {
             user && setUser(user);
             setBudget(user.budget)
             setLocation(user.location)
-            console.log(user.busyblocks)
             user.busyblocks.map((block) => {
               const title='Busy Block';
               const newEvent={start: new Date(block.startTime), end: new Date(block.endTime), title};
@@ -85,7 +85,7 @@ export default function Home() {
     ));
   
     if (isOverlapping) {
-      console.log('The selected time overlaps with an existing busy block.');
+      alert('The selected time overlaps with an existing busy block.');
       return;
     }
     const title='Busy Block';
@@ -145,6 +145,16 @@ export default function Home() {
     }
   }
 
+  function eventSelectHandler(event){
+    if (confirm("Do you want to remove this busy block?\n")){
+      setEvents(events.filter((busyBlock) => JSON.stringify(busyBlock) != JSON.stringify(event)))
+      fetch("/api/schedule", {method: 'put', body: JSON.stringify({event})})
+    }
+    else{
+      return 0;
+    }
+  }
+
   function useCurrentLocation() {
     fetchLocation();
     setLocationInput(locallatitude.toString() + ',' + locallongitude.toString())
@@ -189,10 +199,9 @@ export default function Home() {
           onSelectSlot={busyBlock}
           views={['month', 'week', 'day']}
           defaultView={'week'}
-          defaultDate={moment().toDate()}
-          
+          defaultDate={moment().toDate()} 
+          onSelectEvent={event => eventSelectHandler(event)}
           />
-
         </div>
         <ul>
         </ul>
