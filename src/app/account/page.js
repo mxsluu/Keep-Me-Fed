@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
+
 const localizer=momentLocalizer(moment);
 
 export default function Home() {
@@ -37,9 +38,16 @@ export default function Home() {
             user && setUser(user);
             setBudget(user.budget)
             setLocation(user.location)
-            }
-    );
-  }, []);
+            console.log(user.busyblocks)
+            user.busyblocks.map((block) => {
+              const title='Busy Block';
+              const newEvent={start: new Date(block.startTime), end: new Date(block.endTime), title};
+              setEvents((prevEvents) => [...prevEvents, newEvent]);
+            })
+          }
+      );
+    }, []);
+
 
   const fetchLocation = () => {
     const successHandler = (position) => {
@@ -70,6 +78,16 @@ export default function Home() {
 
   //Event handler for creating busy blocks onto Calendar
   const busyBlock= async ({start, end})=>{
+    const isOverlapping = events.some(event => (
+      (start >= event.start && start < event.end) || 
+      (end > event.start && end <= event.end) ||     
+      (start <= event.start && end >= event.end)    
+    ));
+  
+    if (isOverlapping) {
+      console.log('The selected time overlaps with an existing busy block.');
+      return;
+    }
     const title='Busy Block';
     const newEvent={start, end, title};
     setEvents((prevEvents) => [...prevEvents, newEvent]);
@@ -159,8 +177,8 @@ export default function Home() {
           <button onClick={useCurrentLocation}>Get Current Location</button>
         </div>
         {/* Display the entered location on the screen only if the button is clicked */}
-        {location.length && <p>Location: {location}</p> || <p>Location: No Location Entered</p>}
-        <div style={{height:500}}>
+        
+        <div style={{height:'500pt'}}>
           <h2>Calendar</h2>
           <Calendar 
           localizer={localizer}
@@ -170,9 +188,9 @@ export default function Home() {
           selectable
           onSelectSlot={busyBlock}
           views={['month', 'week', 'day']}
-          defaultView="week"
-          scrollToTime={new Date(1990,1,1,1)}
-          defaultDate={new Date()}
+          defaultView={'week'}
+          defaultDate={moment().toDate()}
+          
           />
 
         </div>

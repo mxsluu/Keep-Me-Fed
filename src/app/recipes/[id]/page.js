@@ -5,6 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Link from 'next/link';
 import Image from 'next/image'
 import { redirect } from 'next/navigation';
+import './styles.css';
 
 
 
@@ -58,6 +59,24 @@ export default function Recipe({ params }){
         }
     }
 
+    function priceRangeCalculator(priceRange){
+        if (priceRange == 1){
+            return (
+                <div><h3>Price Range: $0 - $10 </h3></div>
+            )
+        }
+        else if (priceRange == 2){
+            return (
+                <div><h3>Price Range: $11 - $20 </h3></div>
+            )
+        }
+        else{         
+            return (
+                    <div><h3>Price Range: $21+ </h3></div>
+            )
+        }
+    }
+
     const ingredientsList = loading ? loadingItems: ingredients.map((ingredient) => {
             return(
                 <ul>
@@ -83,51 +102,74 @@ export default function Recipe({ params }){
     else{
         if (status == "authenticated"){
             return(
-                <div>   
-                <Link href="./../findfood">Back</Link>
+                <div className='recipe-details'>   
+                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Back</Link>
                 <br></br>
+                <div className='recipe-info'>
+                <Image
+                    src= {recipe.photo}
+                    width={500}
+                    height={500}
+                />
+                <div className='details'>
                 <div><h1>{recipe.name}</h1></div>
                 <div><h3>{recipe.genre}</h3></div>
                 <div><h3>{recipe.cookTime} minutes to prepare and cook</h3></div>
-                <div><h3>{recipe.priceRange}</h3></div>
+                {priceRangeCalculator(recipe.priceRange)}
                 <text>Did you make and eat this?</text>
                 <button onClick={recordRecipe}>Yes</button>
+                
                 {eaten && <p>How much did you spend on ingredients?</p>}
                 {eaten && <input type='number' step='0.01' value={costInput} onChange={updateCostInput}/>}
                 {eaten && <button onClick={adjustBudget}>Adjust Budget</button>}
                 {eaten && successOutput}
+                </div>
+                </div>
+                <div className='list-details'>
+                <div className='ingredients'>
                 <div><h3> Ingredients </h3></div>
                 <div>{ ingredientsList }</div>
+                </div>
+                <div className='instructions'>
                 <div><h3> Instructions </h3></div>
-                <div>{ instructions }</div>
+                <div className='steps'>{ instructions }</div>
+                </div>
+                </div>
                 <br></br>
-                <Image
-                    src= {recipe.photo}
-                    width={350}
-                    height={350}
-                />
+                
             </div>
             )
         }
         else{
             return(
-                <div>
-                <Link href="./../findfood">Back</Link>
+                <div className='recipe-details'>
+                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Back</Link>
                 <br></br>
+                <div className='recipe-info'>
+                <Image
+                    src= {recipe.photo}
+                    width={500}
+                    height={500}
+                />
+                <div className='details'>
                 <div><h1>{recipe.name}</h1></div>
                 <div><h3>{recipe.genre}</h3></div>
                 <div><h3>{recipe.cookTime} minutes to prepare and cook</h3></div>
-                <div><h3>{recipe.priceRange}</h3></div>
+                {priceRangeCalculator(recipe.priceRange)}
+                </div>
+                </div>
+                <div className='list-details'>
+                <div className='ingredients'>
                 <div><h3> Ingredients </h3></div>
                 <div>{ ingredientsList }</div>
+                </div>
+                <div className='instructions'>
                 <div><h3> Instructions </h3></div>
-                <div>{ instructions }</div>
+                <div className='steps'>{ instructions }</div>
+                </div>
+                </div>
                 <br></br>
-                <Image
-                    src= {recipe.photo}
-                    width={350}
-                    height={350}
-                />
+        
             </div>
             )
         }
