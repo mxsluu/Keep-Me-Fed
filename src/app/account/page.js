@@ -177,7 +177,7 @@ export default function Home() {
           <button onClick={useCurrentLocation}>Get Current Location</button>
         </div>
         {/* Display the entered location on the screen only if the button is clicked */}
-        
+        {location != null && location.length && <p>Location: {location}</p> || <p>Location: No Location Entered</p>}
         <div style={{height:'500pt'}}>
           <h2>Calendar</h2>
           <Calendar 
