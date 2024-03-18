@@ -299,7 +299,7 @@ export default function findFoods() {
                         <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
-                  <img classname='details' src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px'}}/>
+                  <img classname='details' src={food.photo} alt={food.name} style={{ width: '180px', height: '180px', marginRight: '10px'}}/>
                 </ListItemButton>
                 </Box>
             </ListItem>
@@ -318,7 +318,7 @@ export default function findFoods() {
                         <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
-                    <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px' }}/>
+                    <img src={food.photo} alt={food.name} style={{ width: '180px', height: '180px', marginRight: '10px' }}/>
                 </ListItemButton>
             </Box>
             </ListItem>
@@ -331,8 +331,8 @@ export default function findFoods() {
             // If user, then display unfavorite button
             if (status == 'authenticated'){
                 return (
-                <ListItem >
-                <Box key={food.id} className="food-item">
+                <ListItem className="food-item">
+                <Box key={food.id} >
                 <IconButton edge="end" onClick={() => unFavoriteFoodHandler(food)} aria-label='Favorite Food'><Favorite/></IconButton>     
                     <ListItemButton onClick={() => (goToFood(food))}>
                         <ListItemText primary={
@@ -486,7 +486,7 @@ export default function findFoods() {
         {status == "authenticated" && displayFreeTime()}
         {IsLoading ? loadingItems : <p className='location'> <span style={{ fontWeight: 'bold' }}>Current Location: </span>Latitude: {locallatitude}, Longitude: {locallongitude}</p>}
         </div> 
-        <List sx={{ width: '50%', maxWidth: 1500 }}>
+        <List sx={{ width: '100%' }}>
             {IsLoading ? loadingItems : status == "authenticated" && <h2>Favorites</h2>}
             {status == "authenticated" && favoriteList() }
         </List>

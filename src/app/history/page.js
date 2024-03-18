@@ -56,8 +56,8 @@ export default function Home() {
         return foods.map((food) => {
         // If user, then display favorite button     
         return (
-        <ListItem>  
-            <Box key={food.id} className="food-item">
+        <ListItem className="food-item">  
+            <Box key={food.id} >
             <ListItemButton onClick={() => (goToFood(food))}>
                 <ListItemText primary={
                     <div>
@@ -65,7 +65,7 @@ export default function Home() {
                     <h4>Date Eaten: </h4><p>{(new Date(food.date)).toLocaleDateString()}</p>
                     </div>
                 }/>
-                <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px'}}/>
+                <img src={food.photo} alt={food.name} style={{ width: '150px', height: '150px', marginRight: '10px'}}/>
             </ListItemButton>
             </Box>
         </ListItem>
@@ -78,7 +78,7 @@ export default function Home() {
     if (status == "authenticated")
         return (
             <div className="food">
-                <List sx={{ width: '100%', maxWidth: 10000 }}>
+                <List sx={{ width: '100%', maxWidth: 2000 }}>
                     <h1>History</h1>
                     {foodList() }
                 </List>
