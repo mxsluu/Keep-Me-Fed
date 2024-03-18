@@ -83,6 +83,6 @@ model Eaten{
   recipieId Int?
   restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
   restaurantId Int?
-  timeSpentEatinginMin Int?
+  price Float?
   menuItem String?
 }

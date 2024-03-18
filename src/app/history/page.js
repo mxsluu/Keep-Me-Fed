@@ -32,12 +32,14 @@ export default function Home() {
                         const food = eaten.recipe
                         food["date"] = eaten.date;
                         food["type"] = "recipe";
+                        food["price"] = eaten.price
                         setFoods((prevFoods) => [food, ...prevFoods])
                     }
                     else{
                         const food = eaten.restaurant
                         food["date"] = eaten.date;
                         food["type"] = "restaurant";
+                        food["price"] = eaten.price;
                         setFoods((prevFoods) => [food, ...prevFoods])   
                     }
                 }
@@ -52,25 +54,27 @@ export default function Home() {
             router.push(`/restaurants/${food.id}`)
         }
     }
-    const foodList = () => {
-        return foods.map((food) => {
-        // If user, then display favorite button     
-        return (
-        <ListItem>  
-            <Box key={food.id} className="food-item">
-            <ListItemButton onClick={() => (goToFood(food))}>
-                <ListItemText primary={
-                    <div>
-                    <h3>{food.name}</h3>
-                    <h4>Date Eaten: </h4><p>{(new Date(food.date)).toLocaleDateString()}</p>
-                    </div>
-                }/>
-                <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px'}}/>
-            </ListItemButton>
-            </Box>
-        </ListItem>
-        );
-        })
+        const foodList = () => {
+            return foods.map((food) => {
+            // If user, then display favorite button     
+            return (
+            <ListItem>  
+                <Box key={food.id} className="food-item">
+                <ListItemButton onClick={() => (goToFood(food))}>
+                    <ListItemText primary={
+                        <div>
+                        <h3>{food.name}</h3>
+                        <b>Date Eaten: </b> {(new Date(food.date)).toLocaleDateString()} 
+                        <h4>Price: ${food.price.toFixed(2)} </h4>
+                        </div>
+                    }/>
+                    <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px'}}/>
+                </ListItemButton>
+                </Box>
+            </ListItem>
+            );
+            })
+
     }
     useEffect(() => {
         handler();

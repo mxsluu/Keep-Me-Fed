@@ -76,7 +76,7 @@ export default function Restaurant({ params }){
     const foodEaten= async ()=>{
         try{
             const response=await fetch('/api/history', {
-              method: 'POST', body: JSON.stringify({food: restaurant, type: "restaurant"})
+              method: 'POST', body: JSON.stringify({food: restaurant, type: "restaurant", price: parseFloat(costInput)})
             });
             if(!response.ok){
               throw new Error('Failed to create new Eaten History');

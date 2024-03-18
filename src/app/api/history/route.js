@@ -4,7 +4,7 @@ import { checkLoggedIn } from "@/lib/auth";
 
 export async function POST(request) {
     const loggedInData = await checkLoggedIn();
-    const { food, type } = await request.json()
+    const { food, type, price } = await request.json()
     const today = new Date()
     if (type == "recipe"){
       delete food.ingredients;
@@ -19,6 +19,7 @@ export async function POST(request) {
           recipe: {
             connect: food
           },
+          price: price
         }
         });
         return NextResponse.json(newEaten, {status: 200});
