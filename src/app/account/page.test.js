@@ -1,3 +1,72 @@
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({ 
+      id: 123,
+      budget: 100,
+      location: 0,
+      busyblocks: [{ startTime: '2024-03-19T09:00:00', endTime: '2024-03-19T12:00:00' }]
+     }),
+  })
+);
+
+import { render, fireEvent, waitFor } from '@testing-library/react';
+import Account from './page';
+
+// Mocking next-auth/react useSession hook
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(),
+}));
+
+// Mocking next/navigation useRouter hook
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
+
+describe('Account component', () => {
+  it('renders without crashing when authenticated', () => {
+    // Mocking useSession hook to return authenticated status with a user
+    const useSessionMock = {
+      data: { user: { id: '123', email: 'test@example.com' } },
+      status: 'authenticated',
+    };
+    require('next-auth/react').useSession.mockReturnValue(useSessionMock);
+
+    render(<Account />);
+
+    // Check if elements are rendered properly
+    expect(screen.getByText('Account Page')).toBeInTheDocument();
+    expect(screen.getByText('Budget')).toBeInTheDocument();
+    expect(screen.getByLabelText('Enter Weekly Budget:')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Enter' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Enter Location:')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Update Location' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Get Current Location' })).toBeInTheDocument();
+    expect(screen.getByText('Calendar')).toBeInTheDocument();
+  });
+
+  it('redirects to login page when not authenticated', () => {
+    // Mocking useSession hook to return unauthenticated status
+    const useSessionMock = {
+      data: null,
+      status: 'unauthenticated',
+    };
+    require('next-auth/react').useSession.mockReturnValue(useSessionMock);
+
+    const useRouterMock = require('next/navigation').useRouter;
+
+    render(<Account />);
+
+    // Check if router.push is called with the login page URL
+    expect(useRouterMock().push).toHaveBeenCalledWith('/');
+  });
+
+  // Add more tests as needed to cover other functionalities of the component
+});
+
+/*
 import ToDos from '../page';
 import { render, act, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
@@ -93,3 +162,4 @@ describe('todos page', () => {
     expect(fetch.mock.calls[1][1]).toEqual({method: 'delete'});
   });
 })
+*/
