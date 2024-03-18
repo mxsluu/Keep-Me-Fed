@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 
 const localizer=momentLocalizer(moment);
 
-export default function Home() {
+export default function Account() {
   const router = useRouter()
   const { data: session, status }  = useSession();
   // State to store the budget value
@@ -26,8 +26,8 @@ export default function Home() {
   const [user, setUser] = useState([])
   const [location, setLocation] = useState('');
   const [locationInput, setLocationInput] = useState('')
-  const [locallatitude, setLocalLatitude] = useState(null);
-  const [locallongitude, setLocalLongitude] = useState(null);
+  const [locallatitude, setLocalLatitude] = useState(0);
+  const [locallongitude, setLocalLongitude] = useState(0);
   const [error, setError] = useState(null);
 
 
