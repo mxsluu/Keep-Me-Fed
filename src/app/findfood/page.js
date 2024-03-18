@@ -292,14 +292,14 @@ export default function findFoods() {
                 <IconButton edge="end" onClick={() => favoriteFoodHandler(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
-                        <div>
+                        <div className='details'>
                         <h3>{food.name}</h3>
                         <p>Price Range: {'$'.repeat(food.priceRange)}</p>
                         <p>Distance: {Number(food.distance).toFixed(2)} miles</p>
                         <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
-                  <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px'}}/>
+                  <img classname='details' src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px'}}/>
                 </ListItemButton>
                 </Box>
             </ListItem>
