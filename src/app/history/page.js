@@ -5,41 +5,86 @@ import Image from 'next/image';
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import  backpic from '/public/img/pexels-ella-olsson-1640777.png';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemButton from '@mui/material/ListItemButton';
+import {Box} from '@mui/material';
+import List from '@mui/material/List';
+import './styles.css';
+import { useRouter } from 'next/navigation'
+
 
 export default function Home() {
-
+    const router = useRouter()
     const [hist, setHist] = useState([]);
+    const [foods, setFoods] = useState([]);
+    const { data: session, status }  = useSession();
+
 
     const handler = async function() {
-        const response_hist = await fetch('/api/users');
-        const user = await response_hist.json();
-        const his = user.history
-
-        setHist({...hist, his});
+        if (status == "authenticated"){
+            const response_hist = await fetch('/api/history');
+            const his = await response_hist.json();
+            setHist({...hist, his});
+            his.map((eaten) => {
+                if (eaten.recipe != null || eaten.restaurant != null){
+                    if (eaten.recipe != null){
+                        const food = eaten.recipe
+                        food["date"] = eaten.date;
+                        food["type"] = "recipe";
+                        setFoods((prevFoods) => [food, ...prevFoods])
+                    }
+                    else{
+                        const food = eaten.restaurant
+                        food["date"] = eaten.date;
+                        food["type"] = "restaurant";
+                        setFoods((prevFoods) => [food, ...prevFoods])   
+                    }
+                }
+            });
+        }
     }
-
+    function goToFood(food){
+        if (food.type == "recipe") {    
+            router.push(`/recipes/${food.id}`)
+        }
+        else{
+            router.push(`/restaurants/${food.id}`)
+        }
+    }
+    const foodList = () => {
+        return foods.map((food) => {
+        // If user, then display favorite button     
+        return (
+        <ListItem>  
+            <Box key={food.id} className="food-item">
+            <ListItemButton onClick={() => (goToFood(food))}>
+                <ListItemText primary={
+                    <div>
+                    <h3>{food.name}</h3>
+                    <h4>Date Eaten: </h4><p>{(new Date(food.date)).toLocaleDateString()}</p>
+                    </div>
+                }/>
+                <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px'}}/>
+            </ListItemButton>
+            </Box>
+        </ListItem>
+        );
+        })
+    }
     useEffect(() => {
         handler();
     }, []);
-
-    console.log(hist, hist.length);
-
-    /*
-    // Initial FETCH
-    const initialFetch = async function() {
-        const userResponse = await fetch("/api/users", { method: "get" })
-        if (userResponse.ok){
-            const user = await userResponse.json();
-            // Get and set user as well as daily budget and schedule
-            setUser(user);
-            const hist = user.history
-            setDailyBudget(daily)
-            setSchedule(user.busyblocks)
-        }
-        else{
-        }
+    if (status == "authenticated")
+        return (
+            <div className="food">
+                <List sx={{ width: '100%', maxWidth: 10000 }}>
+                    <h1>History</h1>
+                    {foodList() }
+                </List>
+            </div>
+        )
+    else{
+        router.push('/')
     }
-    */
-
-
 }

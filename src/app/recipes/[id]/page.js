@@ -43,15 +43,6 @@ export default function Recipe({ params }){
         setCostInput(event.target.value);
     }
 
-    // Async function that makes a PUT request to history API that updates the list of user's meal history
-    const addBudget = () => {
-        fetch(`/api/users/${session.user.id}}`, {method: 'put', body: JSON.stringify({budgetInput, locationInput: location})}).then((res) => {
-          if(res.ok) {
-            // Update isButtonClicked to true when the button is clicked
-            setIsButtonClicked(true);
-          }
-      });
-      };
 
     function adjustBudget(){
         if (0 <= parseFloat(costInput) && (!success)){
@@ -74,9 +65,7 @@ export default function Recipe({ params }){
     const foodEaten= async ()=>{
     try{
         const response=await fetch('/api/history', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({date: new Date()})
+          method: 'POST', body: JSON.stringify({food: recipe, type: "recipe"})
         });
         if(!response.ok){
           throw new Error('Failed to create new Eaten History');
@@ -130,7 +119,7 @@ export default function Recipe({ params }){
         if (status == "authenticated"){
             return(
                 <div className='recipe-details'>   
-                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Back</Link>
+                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Find Another Meal</Link>
                 <br></br>
                 <div className='recipe-info'>
                 <Image
