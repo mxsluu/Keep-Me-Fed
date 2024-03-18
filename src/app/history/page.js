@@ -54,6 +54,7 @@ export default function Home() {
             router.push(`/restaurants/${food.id}`)
         }
     }
+<<<<<<< HEAD
         const foodList = () => {
             return foods.map((food) => {
             // If user, then display favorite button     
@@ -75,6 +76,27 @@ export default function Home() {
             );
             })
 
+=======
+    const foodList = () => {
+        return foods.map((food) => {
+        // If user, then display favorite button     
+        return (
+        <ListItem className="food-item">  
+            <Box key={food.id} >
+            <ListItemButton onClick={() => (goToFood(food))}>
+                <ListItemText primary={
+                    <div>
+                    <h3>{food.name}</h3>
+                    <h4>Date Eaten: </h4><p>{(new Date(food.date)).toLocaleDateString()}</p>
+                    </div>
+                }/>
+                <img src={food.photo} alt={food.name} style={{ width: '150px', height: '150px', marginRight: '10px'}}/>
+            </ListItemButton>
+            </Box>
+        </ListItem>
+        );
+        })
+>>>>>>> origin/history-ui
     }
     useEffect(() => {
         handler();
@@ -82,7 +104,7 @@ export default function Home() {
     if (status == "authenticated")
         return (
             <div className="food">
-                <List sx={{ width: '100%', maxWidth: 10000 }}>
+                <List sx={{ width: '100%', maxWidth: 2000 }}>
                     <h1>History</h1>
                     {foodList() }
                 </List>

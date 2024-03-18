@@ -13,7 +13,7 @@ import { TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import { CollectionsBookmarkOutlined, Favorite, FavoriteBorder } from '@mui/icons-material';
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Drawer,   Button ,Box} from '@mui/material';
+import { Drawer,   Button ,Box, Grid} from '@mui/material';
 import { create } from 'domain';
 import { useSession } from 'next-auth/react';
 import InputLabel from '@mui/material/InputLabel';
@@ -287,19 +287,19 @@ export default function findFoods() {
         // If user, then display favorite button
         if (status == 'authenticated'){         
             return (
-            <ListItem>  
-                <Box key={food.id} className="food-item">
+            <ListItem className="food-item">  
+                <Box key={food.id} >
                 <IconButton edge="end" onClick={() => favoriteFoodHandler(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
-                        <div>
+                        <div className='details'>
                         <h3>{food.name}</h3>
                         <p>Price Range: {'$'.repeat(food.priceRange)}</p>
                         <p>Distance: {Number(food.distance).toFixed(2)} miles</p>
                         <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
-                  <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px'}}/>
+                  <img classname='details' src={food.photo} alt={food.name} style={{ width: '180px', height: '180px', marginRight: '10px'}}/>
                 </ListItemButton>
                 </Box>
             </ListItem>
@@ -307,8 +307,8 @@ export default function findFoods() {
         }
         else{
             return (
-                <ListItem>
-                <Box key={food.id} className="food-item">
+                <ListItem className="food-item">
+                <Box key={food.id} >
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
                         <div>
@@ -318,7 +318,7 @@ export default function findFoods() {
                         <p>Time needed: {Number(food.cookTime + 30).toFixed(2)} mins</p>
                         </div>
                     }/>
-                    <img src={food.photo} alt={food.name} style={{ width: '200px', height: '200px', marginRight: '10px' }}/>
+                    <img src={food.photo} alt={food.name} style={{ width: '180px', height: '180px', marginRight: '10px' }}/>
                 </ListItemButton>
             </Box>
             </ListItem>
@@ -331,8 +331,8 @@ export default function findFoods() {
             // If user, then display unfavorite button
             if (status == 'authenticated'){
                 return (
-                <ListItem>
-                <Box key={food.id} className="food-item">
+                <ListItem className="food-item">
+                <Box key={food.id} >
                 <IconButton edge="end" onClick={() => unFavoriteFoodHandler(food)} aria-label='Favorite Food'><Favorite/></IconButton>     
                     <ListItemButton onClick={() => (goToFood(food))}>
                         <ListItemText primary={
@@ -356,7 +356,7 @@ export default function findFoods() {
     function displayBudget(){
         if (!IsLoading){
             return(
-                <p>Daily Budget: ${dailyBudget} </p>
+                <p className='budget'> <span style={{ fontWeight: 'bold' }}>Daily Budget:</span> ${dailyBudget} </p>
             )
         }
         else{
@@ -371,7 +371,7 @@ export default function findFoods() {
             const hours = Math.floor(freeTime/60)
             const minutes = Number(freeTime % 60).toFixed(0)
             return(
-                <p>Free Time: {hours} hours {minutes} minutes </p>
+                <p className='free-time'> <span style={{ fontWeight: 'bold' }}>Free Time: </span> {hours} hours {minutes} minutes </p>
             )
             }
         else{
@@ -481,11 +481,12 @@ export default function findFoods() {
                 </List>
             </Drawer>
         <Button onClick={resetSearchHandler} style={{ color: '#7F8E76' }}>Reset Search</Button>
-
-        {status == "authenticated" && displayBudget()}
+        <div className='search-top'>      
+         {status == "authenticated" && displayBudget()}
         {status == "authenticated" && displayFreeTime()}
-        {IsLoading ? loadingItems : <p>Current Location: Latitude: {locallatitude}, Longitude: {locallongitude}</p>}
-        <List sx={{ width: '50%', maxWidth: 1500 }}>
+        {IsLoading ? loadingItems : <p className='location'> <span style={{ fontWeight: 'bold' }}>Current Location: </span>Latitude: {locallatitude}, Longitude: {locallongitude}</p>}
+        </div> 
+        <List sx={{ width: '100%' }}>
             {IsLoading ? loadingItems : status == "authenticated" && <h2>Favorites</h2>}
             {status == "authenticated" && favoriteList() }
         </List>
@@ -511,23 +512,9 @@ export default function findFoods() {
         <div className="search-bar-container">
         <TextField label="Latitude"  variant="outlined" value={customLat} onChange={updateCustomLat} className="search-bar"/>
         <TextField label="Longitude"  variant="outlined" value={customLng} onChange={updateCustomLng} className="search-bar"/>
-        <Button
-        variant="outlined"
-        onClick={updateLocation}
-        style={{ margin: '8px', padding: '10px 16px', textTransform: 'none' }}
-        >
-        Use Location
-        </Button>
-        {status == "authenticated" &&
-        <Button
-        variant="contained"
-        color="primary"
-        onClick={useAccountLocation}
-        style={{ margin: '8px', padding: '10px 16px', textTransform: 'none' }}
-        >
-        Get Account Location
-        </Button>
-        }
+        <button className="location-button"onClick={updateLocation}>Use Location</button>
+        {status == "authenticated" && <button className="location-button" onClick={useAccountLocation}>Get Account Location</button>}
+        
         </div>
             <List sx={{ width: '100%', maxWidth: 2000 }}>
                 <h1>Meals</h1>

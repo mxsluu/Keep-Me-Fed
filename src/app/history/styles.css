@@ -1,6 +1,7 @@
 .food{
-    margin-left: 80px;
-    margin-right:80px;
+    margin-left: 70px;
+    margin-right:70px;
+    margin-top:none;
 }
 .search-bar-container{
     display:flex;
@@ -42,21 +43,40 @@
 }
 .food-item {
     border: 1px solid rgb(143, 139, 139);
-    display: flex;
-    width:100%;
+    flex: 0 1 calc(33.3% - 5px); 
+    width: calc(33.3% - 5px);
+    display: inline-block;
     border-radius: 5px;
     margin-bottom: 10px;
-    height:250px;
-    margin-left:10px;
+    min-height:400px;
+    max-height:400px;
+    margin-left:5px;
     background-color:#F7F5F0 ;
     box-shadow: 0px 2px 4px rgba(80, 79, 79, 0.3); 
-    min-width: 400px;
-    
+    min-width: 400px; 
+    flex-direction: column; /* Align items vertically */
+    justify-content: center; /* Center items vertically */
+    align-items: center; /* Center items horizontally */
+}
+.food-item img {
+    max-width: 100%; 
+    max-height: 100%; 
+}
+.food-item h3{
+    font-size:18px;
+}
+@media (max-width: 1024px) {
+    .food-item {
+        flex: 0 1 calc(50% - 20px); 
+        max-width: calc(50% - 20px); 
+    }
 }
 
-.food-list {
-    display: flex;
-    flex-wrap: wrap;
-    overflow-x: auto;
-    
+@media (max-width: 600px) {
+    .food-item {
+        max-width: 400px; 
+        margin-right: 0;
+    }
 }
+
+
