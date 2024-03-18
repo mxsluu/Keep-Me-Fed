@@ -13,7 +13,7 @@ import { TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import { CollectionsBookmarkOutlined, Favorite, FavoriteBorder } from '@mui/icons-material';
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Drawer,   Button ,Box} from '@mui/material';
+import { Drawer,   Button ,Box, Grid} from '@mui/material';
 import { create } from 'domain';
 import { useSession } from 'next-auth/react';
 import InputLabel from '@mui/material/InputLabel';
@@ -283,13 +283,12 @@ export default function findFoods() {
 
     // Generates the food list 
     const foodList = () => {
- 
         return foods.map((food) => {
         // If user, then display favorite button
         if (status == 'authenticated'){         
             return (
-            <ListItem key={food.id} className="food-item">  
-                <Box>
+            <ListItem className="food-item">  
+                <Box key={food.id} >
                 <IconButton edge="end" onClick={() => favoriteFoodHandler(food)} aria-label='Favorite Food'><FavoriteBorder/></IconButton>
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
@@ -305,13 +304,11 @@ export default function findFoods() {
                 </Box>
             </ListItem>
             );
-            
         }
-
         else{
             return (
-                <ListItem key={food.id} className="food-item" >
-                <Box style={{ marginTop: '35px' }}>
+                <ListItem className="food-item">
+                <Box key={food.id} >
                 <ListItemButton onClick={() => (goToFood(food))}>
                     <ListItemText primary={
                         <div>
@@ -334,8 +331,8 @@ export default function findFoods() {
             // If user, then display unfavorite button
             if (status == 'authenticated'){
                 return (
-                <ListItem key={food.id} className="food-item">
-                <Box >
+                <ListItem >
+                <Box key={food.id} className="food-item">
                 <IconButton edge="end" onClick={() => unFavoriteFoodHandler(food)} aria-label='Favorite Food'><Favorite/></IconButton>     
                     <ListItemButton onClick={() => (goToFood(food))}>
                         <ListItemText primary={
