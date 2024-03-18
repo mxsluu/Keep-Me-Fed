@@ -29,6 +29,26 @@ export async function POST(request){
     }
 }
 
+export async function PUT(request){
+    const loggedInData = await checkLoggedIn();
+    const {event}= await request.json()
+    const start = new Date(event.start)
+    const end = new Date(event.end)
+    const id = loggedInData.user.id
+    try{
+        await prisma.BusyBlock.deleteMany({
+            where: {
+                userId: id,
+                startTime: start,
+                endTime: end
+            }
+        });
+    }catch(error){
+        console.error('Error deleting busy block:',error);
+        return NextResponse.json({error: 'Failed to delete block'});
+    }
+}
+
 /*
 export async function GET(){
     const loggedInData = await checkLoggedIn();
