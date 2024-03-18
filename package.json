@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "jest-watch": "jest --watch",
-    "jest": "jest",
+    "jest": "jest --coverage",
     "jest-coverage": "jest --coverage=true --coverageDirectory=coverage"
   },
   "dependencies": {

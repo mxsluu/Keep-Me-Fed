@@ -55,7 +55,7 @@ export default function Home() {
                 Just want to search for meals?
                 </Typography>
                 <Typography variant="body2">
-                No problem! Start your search no
+                No problem! Start your search now
                 </Typography>
             </CardContent>
             <CardActions>

@@ -30,9 +30,8 @@ export default function Account() {
   const [locallongitude, setLocalLongitude] = useState(0);
   const [error, setError] = useState(null);
 
-
-
   useEffect(() => {
+    if (status == "authenticated")
     fetchLocation();
     fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
         user => {
@@ -209,6 +208,6 @@ export default function Account() {
     );
   }
   else{
-    router.push('/')
+    return router.push('/');
   }
 }
