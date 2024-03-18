@@ -6,7 +6,7 @@
     background-color: rgb(229, 229, 224);
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-    min-width:900px;
+    min-width:1000px;
     max-height:500px;
     color:rgb(141, 140, 138);
 }
@@ -35,7 +35,7 @@
     display:flex;
     margin: 0px 40px;
     box-shadow: 0px 5px 20px -5px rgba(0, 0, 0, 0.5);
-    min-width:900px;
+    min-width:1000px;
     background-color: rgb(248, 248, 242);
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color:rgb(112, 112, 111);
