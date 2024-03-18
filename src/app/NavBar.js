@@ -13,7 +13,7 @@ export default function NavBar() {
     { path: '/findfood', name: 'Find Food' },
   ];
   if (status == 'authenticated'){
-    links = [...links, { path: '/account', name: 'Account' }]
+    links = [...links, { path: '/account', name: 'Account' }, { path: '/history', name: 'Meal History' }]
   }
 
 

@@ -415,38 +415,7 @@ export default function findFoods() {
         else 
         {
             const nextBusyTime = new Date(tempSche[busyIndex].startTime);
-            return (nextBusyTime - currentdate) / 60000;
-        }
-
-
-    };
-    
-    const favoriteList = IsLoading ? loadingItems: favorites.map((food) => {
-        if (food.type == "restaurant"){
-            const restaurantLongitudeAndLatitude = food.location.split(',')
-            var distance = getDistanceFromLatLonInMiles(locallatitude, locallongitude, restaurantLongitudeAndLatitude[0], restaurantLongitudeAndLatitude[1]);
-            var time = (distance / 18.6) * 60
-            food.cookTime = time
-            food.distance = distance
-        }
-        else{
-            var distance = 0
-            var time = food.cookTime
-            food.distance = 0
-        }
-        if (status == 'authenticated'){
-            return( 
-            <ListItem
-            secondaryAction={
-                <IconButton edge="end" onClick={() => unfavoriteFood(food)} aria-label='Unfavorite Food'><Favorite/></IconButton>   
-            }>
-                <ListItemButton onClick={() => (goToFood(food))}>
-                    <ListItemText primary={food.name}/>
-                    <ListItemText primary={'$'.repeat(food.priceRange)}/>
-                    <ListItemText primary={distance}/>
-                    <ListItemText primary={Number(30 + time).toFixed(2)}/>
-                </ListItemButton>
-            </ListItem>);
+            return Number((nextBusyTime - currentdate) / 60000).toFixed(2);
         }
       };
 

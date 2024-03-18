@@ -43,12 +43,24 @@ export default function Recipe({ params }){
         setCostInput(event.target.value);
     }
 
+    // Async function that makes a PUT request to history API that updates the list of user's meal history
+    const addBudget = () => {
+        fetch(`/api/users/${session.user.id}}`, {method: 'put', body: JSON.stringify({budgetInput, locationInput: location})}).then((res) => {
+          if(res.ok) {
+            // Update isButtonClicked to true when the button is clicked
+            setIsButtonClicked(true);
+          }
+      });
+      };
+
     function adjustBudget(){
         if (0 <= parseFloat(costInput) && (!success)){
             setCostInput(Number(costInput).toFixed(2));
             setSuccessOutput('Budget Changed')
             setSuccess(true)
             fetch(`/api/adjustBudget/${session.user.id}}`, {method: 'put', body: JSON.stringify({cost: costInput})}).then((response) => response.ok && response.json())
+            foodEaten();
+            
         }
         else if (parseFloat(costInput) <= 0){
             setSuccessOutput('Cost cannot be negative')
@@ -58,6 +70,21 @@ export default function Recipe({ params }){
             setSuccessOutput('Error in changing budget or budget change already recorded')  
         }
     }
+
+    const foodEaten= async ()=>{
+    try{
+        const response=await fetch('/api/history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({date: new Date()})
+        });
+        if(!response.ok){
+          throw new Error('Failed to create new Eaten History');
+        } 
+      }catch (error){
+          console.error('Error creating eating history: ',error);
+        }
+    };
 
     function priceRangeCalculator(priceRange){
         if (priceRange == 1){
