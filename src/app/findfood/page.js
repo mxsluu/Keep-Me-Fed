@@ -39,8 +39,8 @@ export default function findFoods() {
     const loadingItems = <CircularProgress/>;
     const searchParams = useSearchParams()
     const { data: session, status }  = useSession();
-    const [locallatitude, setLocalLatitude] = useState(null);
-    const [locallongitude, setLocalLongitude] = useState(null);
+    const [locallatitude, setLocalLatitude] = useState(0);
+    const [locallongitude, setLocalLongitude] = useState(0);
     const [customLat, setCustomLat] = useState('');
     const [customLng, setCustomLng] = useState('');
     const [error, setError] = useState(null);
@@ -54,10 +54,10 @@ export default function findFoods() {
     const [filters, setFilters] = useState(false);
     const [schedule, setSchedule] = useState([]);
     
-   // Initial visit to site will call initialFetch and will not run on subsequent rerenders 
+   // Initial visit to site will call initialFetch and will not run on subsequent rerenders UNLESS status changes
     useEffect(() => {
         initialFetch()
-    }, []);
+    }, [status]);
 
     // Only update food list if filters, favorites or location changes
     // Also update food if reset search button is clicked

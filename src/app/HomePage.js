@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 import Signup from './Signup'; // import the Signup component
+import Login from './Login'; // import the Login component
 import { useSession } from 'next-auth/react';
 import  backpic from '/public/img/pexels-ella-olsson-1640777.png';
 
@@ -39,11 +40,12 @@ export default function Home() {
                 Want a curated experience?
                 </Typography>
                 <Typography variant="body2">
-                Sign up now!
+                Sign up or log in now!
                 </Typography>
             </CardContent>
             <CardActions>
                 <Signup /> {/* Use the Signup component directly instead of Link */}
+                <Login /> {/* Use the Login component directly instead of Link */}
             </CardActions>
             </Card>
 
@@ -53,7 +55,7 @@ export default function Home() {
                 Just want to search for meals?
                 </Typography>
                 <Typography variant="body2">
-                No problem!
+                No problem! Start your search no
                 </Typography>
             </CardContent>
             <CardActions>
