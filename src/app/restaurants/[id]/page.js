@@ -98,8 +98,8 @@ export default function Restaurant({ params }){
                 <div className='res-details'>
                 <Image
                     src= {restaurant.photo}
-                    width={600}
-                    height={600}
+                    width={650}
+                    height={650}
                 />
                 <div className='details'>
                 <div><h1>{restaurant.name}</h1></div>
@@ -141,8 +141,8 @@ export default function Restaurant({ params }){
                 <div className='res-details'>
                 <Image
                     src= {restaurant.photo}
-                    width={600}
-                    height={600}
+                    width={650}
+                    height={650}
                 />
                  <div className='details'>
                 <div><h1>{restaurant.name}</h1></div>

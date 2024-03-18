@@ -40,7 +40,7 @@ export default function RootLayout({ children, title }) {
         <AppBar position="static"sx={{ backgroundColor: '#96A98B', minWidth: '1200px'}}>
           <Container maxWidth="xl">
             <Toolbar disableGutters>
-              <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+              
               <Typography
                 variant="h6"
                 noWrap
