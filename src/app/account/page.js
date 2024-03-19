@@ -187,9 +187,9 @@ export default function Account() {
     setLocationInput(locallatitude.toString() + ',' + locallongitude.toString())
   }
   const displayBudget = () => {
-    if (!isNaN(budget) && Number(budget) >= 0) {
+    if (!isNaN(budget)) {
       return <h2>Weekly Budget: ${Number(budget).toFixed(2)}</h2>;
-    } else if (budgetError || Number(budget) < 0){
+    } else if (budgetError){
       return <p>Please enter a valid budget.</p>;
     }
     return null; // Don't display anything before the user interacts with the budget input
