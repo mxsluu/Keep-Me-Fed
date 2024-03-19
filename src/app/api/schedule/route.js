@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { checkLoggedIn } from "@/lib/auth";
 
 
+
 export async function POST(request){
     const loggedInData = await checkLoggedIn();
     const {startTime, endTime}= await request.json()

@@ -22,13 +22,14 @@ export async function GET(request) {
 
 export async function POST(request) {
   const data = await request.json();
-  const { email, password } = data;
-  if (email && password) {
+  const { username, email, password } = data;
+  if (username && email && password) {
     const hashedPassword = await bcrypt.hash(password, 10);
     let user;
     try {
       user = await prisma.user.create({
-        data: { 
+        data: {
+          username,
           email, 
           password: hashedPassword,
           budget: 0,

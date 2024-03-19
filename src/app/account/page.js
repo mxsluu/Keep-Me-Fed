@@ -1,6 +1,9 @@
+
 'use client';
 
+
 import { useState, useEffect } from 'react'; // Import useState hook
+import { Button } from '@mui/material';
 import {Calendar, momentLocalizer} from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -8,12 +11,20 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import styles from './AccountPage.module.css';
+import { TextField } from '@mui/material';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import SearchIcon from '@mui/icons-material/Search';
+import Signup from '/src/app/Signup.js';
+
 
 
 const localizer=momentLocalizer(moment);
 
 export default function Account() {
   const router = useRouter()
+  const [searchInput, setSearchInput] = useState('');
   const { data: session, status }  = useSession();
   // State to store the budget value
   const [budget, setBudget] = useState('');
@@ -29,10 +40,12 @@ export default function Account() {
   const [locallatitude, setLocalLatitude] = useState(0);
   const [locallongitude, setLocalLongitude] = useState(0);
   const [error, setError] = useState(null);
+  const [budgetError, setBudgetError] = useState(null)
 
-
-
+  
+  
   useEffect(() => {
+    if (status == "authenticated")
     fetchLocation();
     fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
         user => {
@@ -57,6 +70,8 @@ export default function Account() {
 
       const errorHandler = (error) => {
         setError(error.message);
+        setLocalLatitude(0);
+        setLocalLongitude(0);
       };
 
       if (!navigator.geolocation) {
@@ -76,6 +91,8 @@ export default function Account() {
     setLocationInput(event.target.value);
   };
 
+
+  
   //Event handler for creating busy blocks onto Calendar
   const busyBlock= async ({start, end})=>{
     const isOverlapping = events.some(event => (
@@ -108,10 +125,14 @@ export default function Account() {
  
   // Event handler for adding budget
   const addBudget = () => {
-    fetch(`/api/users/${session.user.id}}`, {method: 'put', body: JSON.stringify({budgetInput, locationInput: location})}).then((res) => {
+    fetch(`/api/users/${session.user.id}`, {method: 'put', body: JSON.stringify({budgetInput, locationInput: location})}).then((res) => {
       if(res.ok) {
         // Update isButtonClicked to true when the button is clicked
         setIsButtonClicked(true);
+      }
+      else{
+        setIsButtonClicked(true);
+        setBudgetError(true);
       }
   });
   };
@@ -122,6 +143,9 @@ export default function Account() {
         if(res.ok) {
           // Update isButtonClicked to true when the button is clicked
           setIsButtonClicked(true);
+        }
+        else{
+          setError(true)
         }
     });
     };
@@ -135,13 +159,16 @@ export default function Account() {
   }
 
   function updateLocation() {
-    if (locationInput){
+    if (locationInput != null && locationInput && locationInput.split(",").length == 2){
       const locationInputSplit = locationInput.split(",")  
       setLocation(locationInput);
       setLocalLatitude(locationInputSplit[0])
       setLocalLongitude(locationInputSplit[1])
       addLocation();
       setLocationInput('');
+    }
+    else{
+      setLocation('error');
     }
   }
 
@@ -159,56 +186,173 @@ export default function Account() {
     fetchLocation();
     setLocationInput(locallatitude.toString() + ',' + locallongitude.toString())
   }
-  if (status == "authenticated"){
+  const displayBudget = () => {
+    if (!isNaN(budget)) {
+      return <h2>Weekly Budget: ${Number(budget).toFixed(2)}</h2>;
+    } else if (budgetError){
+      return <p>Please enter a valid budget.</p>;
+    }
+    return null; // Don't display anything before the user interacts with the budget input
+  };
+
+  const displayLocation = () => {
+      if (location != null && location.length && location.split(",").length == 2){
+          const lat = location.split(",")[0];
+          const long = location.split(",")[1];
+          return <h2>Location: {lat},{long}</h2>;
+      }
+      else{
+        return <h2>Invalid Account Location Entered or No Location On Record</h2>
+      }
+  };
+  
+  if (status === "authenticated") {
+    
+    const userName = user.username;
+    const imageUrl = "./image.png";
     return (
       <>
-        <h1>Account Page</h1>
-        <h2>Budget</h2>
-        <p>
-          Enter a budget below. This will reset each week and adjust after each meal 
-        </p>
-        <div>
-          {/* Display label and input field for entering budget */}
-          <label>Enter Weekly Budget: </label>
-          <input type="text" value={budgetInput} onChange={BudgetInputChanged}/>
-          <br></br>
-          {/* Button to trigger adding budget */}
-          <button onClick={updateBudget}>Enter</button>
+        
+        <div className={styles.container}>
+        <h1 className={styles.userName}>Welcome to your account {userName}!</h1>
+        
+          
+        
+      </div>
+        <div className={styles.pageContainer}>
+          <h3>{displayBudget()}</h3>
+          
+          <TextField
+  label="Enter Budget - will reset each week & adjust after each meal"
+  variant="outlined"
+  value={budgetInput}
+  onChange={BudgetInputChanged}
+  sx={{
+    width: '40%', // Adjust the width as needed, this will shorten the length
+    boxShadow: '0px 3px 9px rgba(0, 0, 0, 0.5)', // This adds a shadow
+    '& .MuiFilledInput-root': {
+      backgroundColor: '#F7F5F0', // Use the same color as your design background for the input
+      '&:before': {
+        borderBottom: 'none', // Remove underline
+      },
+      '&:after': {
+        borderBottom: 'none', // Remove underline on focus
+      },
+      '&:hover:before': {
+        borderBottom: 'none', // Remove underline on hover
+      }
+    },
+    '& .MuiInputLabel-filled': {
+      transform: 'translate(12px, 20px) scale(1)', // Adjust the label position
+    },
+    '& .MuiInputLabel-filled.MuiInputLabel-shrink': {
+      transform: 'translate(12px, 10px) scale(0.75)', // Adjust the label position on focus or when filled
+    },
+  }}
+  InputProps={{
+    endAdornment: (
+      <InputAdornment position="end">
+
+      </InputAdornment>
+    ),
+  }}
+/>
+<Button onClick={updateBudget} variant="contained" sx={{
+    ml: 1, // margin-left to add space between the TextField and the Button
+    bgcolor: '#D4DECD', // replace with the exact color you need
+    color: '#575856',
+    '&:hover': {
+      bgcolor: 'teal', // darker shade for hover, replace with exact color
+    },
+    boxShadow: '0px 3px 9px rgba(0, 0, 0, 0.5)', // Remove box shadow effect
+    textTransform: 'none', // Prevents uppercase transformation
+    fontSize: '1rem', // Adjust font size to match your design
+    height: '56px', // Match the TextField height, adjust as needed
+    borderRadius: '4px', // Match the TextField border-radius, adjust as needed
+  }}>
+  Enter Budget
+</Button>
+          <h3>{displayLocation()}</h3>
+          <TextField
+  label="Enter Location - (latitude, longitude)"
+  variant="outlined"
+  value={locationInput}
+  onChange={LocationInputChanged}
+  sx={{
+    width: '40%', // Adjust the width as needed, this will shorten the length
+    boxShadow: '0px 3px 9px rgba(0, 0, 0, 0.5)', // This adds a shadow
+    '& .MuiFilledInput-root': {
+      backgroundColor: '#F7F5F0', // Use the same color as your design background for the input
+      '&:before': {
+        borderBottom: 'none', // Remove underline
+      },
+      '&:after': {
+        borderBottom: 'none', // Remove underline on focus
+      },
+      '&:hover:before': {
+        borderBottom: 'none', // Remove underline on hover
+      }
+    },
+    '& .MuiInputLabel-filled': {
+      transform: 'translate(12px, 20px) scale(1)', // Adjust the label position
+    },
+    '& .MuiInputLabel-filled.MuiInputLabel-shrink': {
+      transform: 'translate(12px, 10px) scale(0.75)', // Adjust the label position on focus or when filled
+    },
+  }}
+/>
+<div>
+  <Button onClick={updateLocation} variant="contained"  sx={{
+    ml: 1, // margin-left to add space between the TextField and the Button
+    bgcolor: '#D4DECD', // replace with the exact color you need
+    color: '#575856',
+    '&:hover': {
+      bgcolor: 'teal', // darker shade for hover, replace with exact color
+    },
+    boxShadow: '0px 3px 9px rgba(0, 0, 0, 0.5)', // Remove box shadow effect
+    textTransform: 'none', // Prevents uppercase transformation
+    fontSize: '1rem', // Adjust font size to match your design
+    height: '56px', // Match the TextField height, adjust as needed
+    borderRadius: '4px', // Match the TextField border-radius, adjust as needed
+  }}>
+    Update Location
+  </Button>
+  <Button onClick={useCurrentLocation} variant="contained" sx={{
+    ml: 1, // margin-left to add space between the TextField and the Button
+    bgcolor: '#D4DECD', // replace with the exact color you need
+    color: '#575856',
+    '&:hover': {
+      bgcolor: 'teal', // darker shade for hover, replace with exact color
+    },
+    boxShadow: '0px 3px 9px rgba(0, 0, 0, 0.5)', // Remove box shadow effect
+    textTransform: 'none', // Prevents uppercase transformation
+    fontSize: '1rem', // Adjust font size to match your design
+    height: '56px', // Match the TextField height, adjust as needed
+    borderRadius: '4px', // Match the TextField border-radius, adjust as needed
+  }}>
+    Get Current Location
+  </Button>
+</div>
+
+          <div className={styles.calendarContainer} style={{ height: '500pt' }}>
+            <h2>Calendar</h2>
+            <Calendar
+              localizer={localizer}
+              events={events}
+              startAccessor="start"
+              endAccessor="end"
+              selectable
+              onSelectSlot={busyBlock}
+              views={['month', 'week', 'day']}
+              defaultView={'week'}
+              defaultDate={moment().toDate()}
+              onSelectEvent={event => eventSelectHandler(event)}
+            />
+          </div>
         </div>
-        {/* Display the entered budget on the screen only if the button is clicked */}
-        {<p>Weekly Budget: ${Number(budget).toFixed(2)}</p>}
-        <div>
-          {/* Display label and input field for entering location */}
-          <label>Enter Location: </label>
-          <input type="text" value={locationInput} onChange={LocationInputChanged}/>
-          <br></br>
-          {/* Button to trigger adding location */}
-          <button onClick={updateLocation}>Update Location</button>
-          <button onClick={useCurrentLocation}>Get Current Location</button>
-        </div>
-        {/* Display the entered location on the screen only if the button is clicked */}
-        {location != null && location.length && <p>Location: {location}</p> || <p>Location: No Location Entered</p>}
-        <div style={{height:'500pt'}}>
-          <h2>Calendar</h2>
-          <Calendar 
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          selectable
-          onSelectSlot={busyBlock}
-          views={['month', 'week', 'day']}
-          defaultView={'week'}
-          defaultDate={moment().toDate()} 
-          onSelectEvent={event => eventSelectHandler(event)}
-          />
-        </div>
-        <ul>
-        </ul>
       </>
     );
-  }
-  else{
-    router.push('/')
+  } else {
+    router.push('/');
   }
 }

@@ -43,12 +43,15 @@ export default function Recipe({ params }){
         setCostInput(event.target.value);
     }
 
+
     function adjustBudget(){
         if (0 <= parseFloat(costInput) && (!success)){
             setCostInput(Number(costInput).toFixed(2));
             setSuccessOutput('Budget Changed')
             setSuccess(true)
             fetch(`/api/adjustBudget/${session.user.id}}`, {method: 'put', body: JSON.stringify({cost: costInput})}).then((response) => response.ok && response.json())
+            foodEaten();
+            
         }
         else if (parseFloat(costInput) <= 0){
             setSuccessOutput('Cost cannot be negative')
@@ -58,6 +61,19 @@ export default function Recipe({ params }){
             setSuccessOutput('Error in changing budget or budget change already recorded')  
         }
     }
+
+    const foodEaten= async ()=>{
+    try{
+        const response=await fetch('/api/history', {
+          method: 'POST', body: JSON.stringify({food: recipe, type: "recipe", price: parseFloat(costInput)})
+        });
+        if(!response.ok){
+          throw new Error('Failed to create new Eaten History');
+        } 
+      }catch (error){
+          console.error('Error creating eating history: ',error);
+        }
+    };
 
     function priceRangeCalculator(priceRange){
         if (priceRange == 1){
@@ -103,7 +119,7 @@ export default function Recipe({ params }){
         if (status == "authenticated"){
             return(
                 <div className='recipe-details'>   
-                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Back</Link>
+                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Find Another Meal</Link>
                 <br></br>
                 <div className='recipe-info'>
                 <Image

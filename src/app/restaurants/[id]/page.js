@@ -45,6 +45,7 @@ export default function Restaurant({ params }){
             setSuccessOutput('Budget Changed')
             setSuccess(true)
             fetch(`/api/adjustBudget/${session.user.id}}`, {method: 'put', body: JSON.stringify({cost: costInput})}).then((response) => response.ok && response.json())
+            foodEaten();
         }
         else if (parseFloat(costInput) <= 0){
             setSuccessOutput('Cost cannot be negative')
@@ -72,6 +73,19 @@ export default function Restaurant({ params }){
         }
     }
 
+    const foodEaten= async ()=>{
+        try{
+            const response=await fetch('/api/history', {
+              method: 'POST', body: JSON.stringify({food: restaurant, type: "restaurant", price: parseFloat(costInput)})
+            });
+            if(!response.ok){
+              throw new Error('Failed to create new Eaten History');
+            } 
+          }catch (error){
+              console.error('Error creating eating history: ',error);
+            }
+        };
+
     if (loading){
         return <div> {loadingItems} </div>
     }
@@ -79,13 +93,13 @@ export default function Restaurant({ params }){
         if (status == "authenticated"){
             return(
             <div className='restaurant-details'>
-                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Back</Link>
+                <Link href="./../findfood" style={{ textDecoration: 'none', border: '1px solid black', padding: '5px 20px', borderRadius: '5px', color: 'black' }}>Find Another Meal</Link>
                 <br></br>
                 <div className='res-details'>
                 <Image
                     src= {restaurant.photo}
-                    width={600}
-                    height={600}
+                    width={650}
+                    height={650}
                 />
                 <div className='details'>
                 <div><h1>{restaurant.name}</h1></div>
@@ -127,8 +141,8 @@ export default function Restaurant({ params }){
                 <div className='res-details'>
                 <Image
                     src= {restaurant.photo}
-                    width={600}
-                    height={600}
+                    width={650}
+                    height={650}
                 />
                  <div className='details'>
                 <div><h1>{restaurant.name}</h1></div>
