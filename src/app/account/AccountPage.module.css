@@ -1,0 +1,154 @@
+/*General Page Layout */
+.pageContainer {
+    margin-left: 80px;
+    margin-right: 80px;
+}
+
+/* Input Fields Styling */
+.inputField {
+    border-radius: 3px;
+    background-color: #F7F5F0;
+    border: 1px solid #F7F5F0;
+    padding: 10px;
+    box-shadow: 0px 2px 4px rgba(80, 79, 79, 0.3);
+    height: 43px;
+    width: 100%;
+}
+
+/* Buttons Styling */
+.button {
+    box-shadow: 0px 2px 4px rgba(80, 79, 79, 0.3);
+    height: 55px;
+    padding: 0 20px;
+    border-radius: 5px;
+    margin-left: 5px;
+    background-color: #D4DECD;
+    color: #575856;
+    border: none;
+    cursor: pointer;
+}
+
+/* Calendar Styling */
+.calendarContainer {
+    border: 1px solid rgb(143, 139, 139);
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(80, 79, 79, 0.3);
+    background-color: #F7F5F0;
+    padding: 10px;
+    /* Adjust the height and width as needed to make the calendar appear smaller */
+    height: 400pt; 
+    width: auto; 
+}
+
+
+
+  /* Interactive Hover Effects */
+  .hoverEffect h1 {
+    transition: transform 0.3s ease-in-out, color 0.3s ease;
+  }
+  
+  .hoverEffect h1:hover {
+    transform: scale(1.1);
+    color: #3498db;
+  }
+  
+  /* Custom Graphics or Icons */
+  .userTitle {
+    display: flex;
+    align-items: center;
+  }
+  
+  .userTitle .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  /* Animated Progress Bar or Indicator */
+  .progressContainer {
+    width: 100%;
+    background-color: #e0e0e0;
+  }
+  
+  .progressBar {
+    width: 100%;
+    background: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .progress {
+    height: 20px;
+    background: #4caf50;
+    width: 0; /* Initial state */
+    transition: width 2s ease-in-out; /* Animation */
+  }
+  
+  /* Collapsible Sections */
+  .collapsibleHeader {
+    cursor: pointer;
+    user-select: none; /* Prevents text selection */
+  }
+  
+  .collapsibleHeader .expandIcon {
+    transition: transform 0.3s ease;
+  }
+  
+  .collapsibleHeader:hover .expandIcon {
+    transform: rotate(90deg); /* Example rotation */
+  }
+  
+  /* 3D Text Effect */
+  .threeDEffect{
+    text-shadow:
+      0 1px 0 #ccc,
+      0 2px 0 #c9c9c9,
+      0 3px 0 #bbb,
+      0 4px 0 #b9b9b9,
+      0 5px 0 #aaa,
+      0 6px 1px rgba(0,0,0,.1),
+      0 0 5px rgba(0,0,0,.1),
+      0 1px 3px rgba(0,0,0,.3),
+      0 3px 5px rgba(0,0,0,.2),
+      0 5px 10px rgba(0,0,0,.25),
+      0 10px 10px rgba(0,0,0,.2),
+      0 20px 20px rgba(0,0,0,.15);
+    color: #fff;
+    background-color: #333;
+    padding: 20px;
+    border-radius: 5px;
+  }
+  .userName {
+    font-size: 2em;
+    background: -webkit-linear-gradient(45deg, #375d44 40%, #859a8d 20%, #375d44 40%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+    animation: scaleUp 0.5s ease forwards;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    display: inline-block;
+  }
+  .userImage {
+    width: 150px; /* Adjust based on your preference */
+    height: 150px; /* Adjust to maintain aspect ratio */
+    border-radius: 50%; /* Circular image */
+    overflow: hidden; /* Ensures the image fits the container */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  @keyframes scaleUp {
+    from {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+/* Ensure to include these classes in your component with appropriate className attributes */
