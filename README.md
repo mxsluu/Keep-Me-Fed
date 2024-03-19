@@ -63,9 +63,7 @@ Open [http://localhost:3000](http://localhost:3000) to launch Keep Me Fed.
 npx prisma studio
 ```
 ## Known issues/bugs
-* Attempting to enter strings into budget input can cause unexpected results/issues and may not save correctly
-* Attempting to place multiple busyBlocks in the same time slot in the calendar will cause unexpected results.
-* Calendar toolbar is still being developed and not fully functional
-* Attempting to enter strings into budget input can cause unexpected results/issues
-* Currently no functionality to delete busy blocks (will need to use prisma studio to delete them).
+* Performance issue on find foods page (slight freezing)
+* Weird bug where find foods grid turns to a list sometimes
+* Most input fields are validated/checked but potentially some edge cases (like for location)
 
