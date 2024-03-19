@@ -12,11 +12,11 @@
     "jest-coverage": "jest --coverage=true --coverageDirectory=coverage"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
+    "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.4",
     "@mui/icons-material": "^5.11.16",
-    "@mui/material": "^5.13.6",
+    "@mui/material": "^5.15.13",
     "@prisma/client": "^5.2.0",
     "bcryptjs": "^2.4.3",
     "eslint": "^7.32.0",
