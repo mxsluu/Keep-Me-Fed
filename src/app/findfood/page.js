@@ -485,6 +485,7 @@ export default function findFoods() {
          {status == "authenticated" && displayBudget()}
         {status == "authenticated" && displayFreeTime()}
         {IsLoading ? loadingItems : <p className='location'> <span style={{ fontWeight: 'bold' }}>Current Location: </span>Latitude: {locallatitude}, Longitude: {locallongitude}</p>}
+        <p className='budget'> <span style={{ fontWeight: 'bold' }}>$ = 0-10 | $$ = 11-20 | $$$ = 21+</span></p>
         </div> 
         <List sx={{ width: '100%' }}>
             {IsLoading ? loadingItems : status == "authenticated" && <h2>Favorites</h2>}

@@ -38,6 +38,7 @@ export async function POST(request) {
           restaurant: {
             connect: food
           },
+          price: price
         }
         });
         return NextResponse.json(newEaten, {status: 200});
