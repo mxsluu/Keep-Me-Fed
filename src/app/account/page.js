@@ -40,6 +40,7 @@ export default function Account() {
   const [locallatitude, setLocalLatitude] = useState(0);
   const [locallongitude, setLocalLongitude] = useState(0);
   const [error, setError] = useState(null);
+  const [budgetError, setBudgetError] = useState(null)
 
   
   
@@ -69,6 +70,8 @@ export default function Account() {
 
       const errorHandler = (error) => {
         setError(error.message);
+        setLocalLatitude(0);
+        setLocalLongitude(0);
       };
 
       if (!navigator.geolocation) {
@@ -127,6 +130,10 @@ export default function Account() {
         // Update isButtonClicked to true when the button is clicked
         setIsButtonClicked(true);
       }
+      else{
+        setIsButtonClicked(true);
+        setBudgetError(true);
+      }
   });
   };
 
@@ -136,6 +143,9 @@ export default function Account() {
         if(res.ok) {
           // Update isButtonClicked to true when the button is clicked
           setIsButtonClicked(true);
+        }
+        else{
+          setError(true)
         }
     });
     };
@@ -149,13 +159,16 @@ export default function Account() {
   }
 
   function updateLocation() {
-    if (locationInput){
+    if (locationInput != null && locationInput && locationInput.split(",").length == 2){
       const locationInputSplit = locationInput.split(",")  
       setLocation(locationInput);
       setLocalLatitude(locationInputSplit[0])
       setLocalLongitude(locationInputSplit[1])
       addLocation();
       setLocationInput('');
+    }
+    else{
+      setLocation('error');
     }
   }
 
@@ -174,32 +187,40 @@ export default function Account() {
     setLocationInput(locallatitude.toString() + ',' + locallongitude.toString())
   }
   const displayBudget = () => {
-    if (budget && !isNaN(budget)) {
+    if (!isNaN(budget) && Number(budget) >= 0) {
       return <h2>Weekly Budget: ${Number(budget).toFixed(2)}</h2>;
-    } else if (isButtonClicked) {
-      
+    } else if (budgetError || Number(budget) < 0){
       return <p>Please enter a valid budget.</p>;
     }
     return null; // Don't display anything before the user interacts with the budget input
   };
+
+  const displayLocation = () => {
+      if (location != null && location.length && location.split(",").length == 2){
+          const lat = location.split(",")[0];
+          const long = location.split(",")[1];
+          return <h2>Location: {lat},{long}</h2>;
+      }
+      else{
+        return <h2>Invalid Account Location Entered or No Location On Record</h2>
+      }
+  };
   
-  // const userName=session.user.email.slice(0,atIndex);
   if (status === "authenticated") {
     
-    const atIndex=session.user.email.indexOf('@');
-    const userName = session.user.email.slice(0,atIndex);
+    const userName = user.username;
     const imageUrl = "./image.png";
     return (
       <>
         
         <div className={styles.container}>
-        <h1 className={styles.userName}>{userName}'s KeepMeFed</h1>
+        <h1 className={styles.userName}>Welcome to your account {userName}!</h1>
         
           
         
       </div>
         <div className={styles.pageContainer}>
-          <h2>Budget</h2>
+          <h3>{displayBudget()}</h3>
           
           <TextField
   label="Enter Budget - will reset each week & adjust after each meal"
@@ -251,8 +272,7 @@ export default function Account() {
   }}>
   Enter Budget
 </Button>
-
-          {displayBudget()}
+          <h3>{displayLocation()}</h3>
           <TextField
   label="Enter Location - (latitude, longitude)"
   variant="outlined"

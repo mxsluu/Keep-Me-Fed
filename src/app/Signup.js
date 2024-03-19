@@ -32,6 +32,7 @@ export default function Signup() {
     valid = valid && data.get('password') == data.get('passwordConfirmation');
     if (valid) {
       const signUpData = {};
+      signUpData['username'] = data.get('username');
       signUpData['email'] = data.get('email');
       signUpData['password'] = data.get('password');
       // submit form
@@ -73,13 +74,24 @@ export default function Signup() {
         <form onSubmit={handleSignup}>
         <DialogContent>
           <DialogContentText>
-            To signup, please fill in your email and create a password.
+            To signup, please fill in your username, email and create a password.
           </DialogContentText>
           { error ? (
-            <Alert severity="error">There was an issue signing up, please adjust email and password and try again.</Alert>
+            <Alert severity="error">There was an issue signing up, please adjust username, email and password and try again.</Alert>
           ) : null }
           <TextField
             autoFocus
+            margin="dense"
+            id="username"
+            name="username"
+            label="Username"
+            type="username"
+            fullWidth
+            variant="standard"
+            required
+            error={formState.username?.error}
+          />
+          <TextField
             margin="dense"
             id="email"
             name="email"

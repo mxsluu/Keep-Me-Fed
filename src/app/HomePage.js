@@ -6,6 +6,7 @@ import Signup from './Signup'; // import the Signup component
 import Login from './Login'; // import the Login component
 import { useSession } from 'next-auth/react';
 import  backpic from '/public/img/pexels-ella-olsson-1640777.png';
+import { useState, useEffect } from 'react'; // Import useState hook
 
 export default function Home() {
   // Define the style for the cards here to avoid repetition
@@ -30,7 +31,15 @@ export default function Home() {
   };
 
   const { data: session, status }  = useSession();
-  
+  const [user, setUser] = useState([]);
+  useEffect(() => {
+    fetch("/api/users", { method: "get" }).then((response) => response.ok && response.json()).then(
+        user => {
+            user && setUser(user);
+          }
+      );
+    }, [status]);
+
   if (status != 'authenticated'){
         return (
           <div style={containerStyle}>        
@@ -65,19 +74,15 @@ export default function Home() {
             </CardActions>
             </Card>
         </div>
-        )
- 
+        ) 
   }
     else{
-      const atIndex=session.user.email.indexOf('@');
-      const userName=session.user.email.slice(0,atIndex);
         return (
           <div style={containerStyle}>
-            
               <Card style={cardStyle}>
                 <CardContent>
                   <Typography variant="h5" component="div">
-                    Welcome {userName}!
+                    Welcome {user.username}!
                   </Typography>
                   <Typography variant="body2">
                     Check out your account.
@@ -109,25 +114,3 @@ export default function Home() {
           )
     }
 }
-
-
-
-
-
-// export default function Home() {
-//   return (
-//     <>
-//       <h1>Welcome to CSC 307</h1>
-//       <p>
-//         This application is a Next.js application. It already contains a way to login and sign-up as well as a rough ToDo list application as a way to demonstrate create and update of a todo. 
-//       </p>
-//       <h2>Documentation</h2>
-//       <ul>
-//         <li>NextJS: <a href="https://nextjs.org/docs">https://nextjs.org/docs</a></li>
-//         <li>Material UI: <a href="https://mui.com/material-ui/getting-started/">https://mui.com/material-ui/getting-started/</a></li>
-//         <li>Prisma: <a href="https://www.prisma.io/docs/getting-started">https://www.prisma.io/docs/getting-started</a></li>
-//       </ul>
-//       <h2></h2>
-//     </>
-//   )
-// }
