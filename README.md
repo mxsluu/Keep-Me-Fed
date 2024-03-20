@@ -56,7 +56,11 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to launch Keep Me Fed.
 
+## Run the Jest test cases for the home page.
 
+```bash
+npm run jest
+```
 ## Look at the database in Prisma studio.
 
 ```bash
